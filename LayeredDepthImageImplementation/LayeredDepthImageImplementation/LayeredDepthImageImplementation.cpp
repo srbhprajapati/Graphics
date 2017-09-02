@@ -9,28 +9,42 @@
 
 #include "WavefrontObjectIO.h"
 #include "ShaderUtil.h"
+#include "SimpleMeshRenderer.h"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 800
 
 int WindowHandle = 0;
+SimpleMeshRenderer* _SampleMesh;
+
 
 using namespace std;
 
+
+
 void RenderFunction(void)
 {
+	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	if (_SampleMesh != nullptr)
+	{
+		_SampleMesh->Draw();
+	}
 
 	glutSwapBuffers();
 	glutPostRedisplay();
+	glDisable(GL_DEPTH_TEST);
 }
 
 void InitWindow(int argc, char** argv)
 {
 	glutInit(&argc, argv);
-	glutInitContextVersion(4, 0);
-	glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
-	glutInitContextProfile(GLUT_CORE_PROFILE);
+	//glutInitContextVersion(4, 0);
+	//glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
+	//glutInitContextProfile(GLUT_CORE_PROFILE);
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 
@@ -64,17 +78,22 @@ GLuint InitShader()
 	ShaderUtil::ShaderSource vertexShader;
 	
 	vertexShader.shaderType = GL_VERTEX_SHADER;
-	vertexShader.source += "#version 330				";
-	vertexShader.source += "void main()					";
-	vertexShader.source += "{							";
-	vertexShader.source += "}							";
+	vertexShader.source += "#version 330									\n";
+	vertexShader.source += "layout( location = 0 ) in vec3 in_Point;		\n";
+	vertexShader.source += "void main()										\n";
+	vertexShader.source += "{												\n";
+	vertexShader.source += "	gl_Position = vec4(in_Point, 1.0);			\n";
+	vertexShader.source += "}												\n";
 
 	ShaderUtil::ShaderSource fragmentShader;
 	
 	fragmentShader.shaderType = GL_FRAGMENT_SHADER;
-	fragmentShader.source += "void main()				";
-	fragmentShader.source += "{							";
-	fragmentShader.source += "}							";
+	fragmentShader.source += "#version 330									\n";
+	fragmentShader.source += "out vec4 color;								\n";
+	fragmentShader.source += "void main()									\n";
+	fragmentShader.source += "{												\n";
+	fragmentShader.source += "	color = vec4(1.0, 0.0, 0.0, 1.0);			\n";
+	fragmentShader.source += "}												\n";
 	
 	std::vector<ShaderUtil::ShaderSource> allShaders;
 	allShaders.push_back(vertexShader);
@@ -115,11 +134,11 @@ int _tmain(int argc, char* argv[])
 	std::vector<float> vertexArray;
 	std::vector<unsigned int> indexArray;
 
-	bool result = WavefrontObjectIO::LoadObjectFile("../datasets/Teapot.obj", &vertexArray, &indexArray);
+	bool result = WavefrontObjectIO::LoadObjectFile("../datasets/Humanoid.obj", &vertexArray, &indexArray);
 
 	if (result)
 	{
-		std::cout << "File Opened successfully" << std::endl;
+		_SampleMesh = new SimpleMeshRenderer(&vertexArray, &indexArray);
 	}
 	else
 	{

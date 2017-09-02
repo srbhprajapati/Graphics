@@ -25,7 +25,7 @@ bool WavefrontObjectIO::LoadObjectFile(std::string objectFile, std::vector<float
 
 			while (getline(ss, item, ' '))
 			{
-				tokens.push_back(item);
+				if(item != "") tokens.push_back(item);
 			}
 
 			if (tokens.size()!= 0 && tokens[0] == "v")
@@ -36,9 +36,9 @@ bool WavefrontObjectIO::LoadObjectFile(std::string objectFile, std::vector<float
 			}
 			else if (tokens.size() != 0 && tokens[0] == "f")
 			{
-				indexArray->push_back(atoi(tokens[1].c_str()));
-				indexArray->push_back(atoi(tokens[2].c_str()));
-				indexArray->push_back(atoi(tokens[3].c_str()));
+				indexArray->push_back(atoi(tokens[1].c_str()) - 1);
+				indexArray->push_back(atoi(tokens[2].c_str()) - 1);
+				indexArray->push_back(atoi(tokens[3].c_str()) - 1);
 			}
 		}
 
