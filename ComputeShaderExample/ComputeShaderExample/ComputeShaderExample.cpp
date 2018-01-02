@@ -29,7 +29,7 @@ std::string GetComputeShaderSource()
 	std::string src = "";
 
 	src += "#version 430																				\n";
-	src += "layout (local_size_x = 16, local_size_y = 16, local_size_z =1) in;											\n";
+	src += "layout (local_size_x = 1, local_size_y = 1, local_size_z =1) in;											\n";
 	src += "																							\n";
 	src += "layout(rgba32f, binding = 0) uniform readonly image2D fromTex;															\n";
 	src += "layout(rgba32f, binding = 1) uniform writeonly image2D toTex;															\n";
@@ -97,14 +97,18 @@ void DefineShaderVariables()
 
 bool CreateTexture()
 {
-	float* data = new float[16 * 16];
+	float* data = new float[4 * 16 * 16];
 
 	for (int i = 0; i < 256; i++)
 	{
-		data[i] = i;
+		data[4 * i + 0] = 0;
+		data[4 * i + 1] = 255;
+		data[4 * i + 2] = 255;
+		data[4 * i + 3] = 255;
+
 	}
 
-	_FirstTexture = GLUtilities::initTexture(16, 16, nullptr);
+	_FirstTexture = GLUtilities::initTexture(16, 16, data);
 	_SecondTexture = GLUtilities::initTexture(16, 16, nullptr);
 
 	return (_FirstTexture != 0 && _SecondTexture != 0);
@@ -114,7 +118,7 @@ void LaunchCompute()
 {
 	glUseProgram(_ShaderProgram);
 
-	glDispatchCompute(1, 1, 1);
+	glDispatchCompute(16, 16, 1);
 
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	
