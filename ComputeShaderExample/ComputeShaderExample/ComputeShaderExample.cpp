@@ -29,17 +29,18 @@ std::string GetComputeShaderSource()
 	std::string src = "";
 
 	src += "#version 430																				\n";
-	src += "layout (local_size_x = 16, local_size_y = 16) in;											\n";
+	src += "layout (local_size_x = 16, local_size_y = 16, local_size_z =1) in;											\n";
 	src += "																							\n";
-	src += "//layout(rgba32f, binding = 0) uniform readonly image2D fromTex;															\n";
-	src += "//layout(rgba32f, binding = 1) uniform writeonly image2D toTex;															\n";
+	src += "layout(rgba32f, binding = 0) uniform readonly image2D fromTex;															\n";
+	src += "layout(rgba32f, binding = 1) uniform writeonly image2D toTex;															\n";
 	src += "																							\n";
 	src += "void main()																					\n";
 	src += "{																							\n";
-	src += "	//ivec2 texCoord = ivec2(gl_GlobalInvocationID.xy);										\n";
-	src += "	//vec4 pixel = imageLoad(fromTex, texCoord);												\n";
-	src += "	//pixel.rg = pixel.gr;																	\n";
-	src += "	//imageStore(toTex, texCoord, pixel);														\n";
+	src += "	ivec2 texCoord = ivec2(gl_GlobalInvocationID.xy);										\n";
+	src += "	vec4 pixel = imageLoad(fromTex, texCoord);												\n";
+	src += "	pixel.rg = pixel.gr;																	\n";
+	src += "	imageStore(toTex, texCoord, pixel);														\n";
+	src += "	return;														\n";
 	src += "}																							\n";
 
 	return src;
@@ -96,14 +97,14 @@ void DefineShaderVariables()
 
 bool CreateTexture()
 {
-	float* data = new float(16 * 16);
+	float* data = new float[16 * 16];
 
 	for (int i = 0; i < 256; i++)
 	{
 		data[i] = i;
 	}
 
-	_FirstTexture = GLUtilities::initTexture(16, 16, data);
+	_FirstTexture = GLUtilities::initTexture(16, 16, nullptr);
 	_SecondTexture = GLUtilities::initTexture(16, 16, nullptr);
 
 	return (_FirstTexture != 0 && _SecondTexture != 0);
@@ -113,8 +114,9 @@ void LaunchCompute()
 {
 	glUseProgram(_ShaderProgram);
 
-//	glDispatchCompute(1, 1, 1);
+	glDispatchCompute(1, 1, 1);
 
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	
 	glUseProgram(0);
 }
@@ -137,6 +139,8 @@ int main(int argc, char** argv)
 	DefineShaderVariables();
 
 	LaunchCompute();
+
+	while (true){}
 
 	return 0;
 }
