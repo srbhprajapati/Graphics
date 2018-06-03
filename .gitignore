@@ -6,17 +6,25 @@ ipch/
 *.ipch
 
 # Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
+ComputeShaderExample/Debug
+ComputeShaderExample/ComputeShaderExample/Debug
+LayeredDepthImageImplementation/Debug
+LayeredDepthImageImplementation/LayeredDepthImageImplementation/Debug
+LayeredDepthImageImplementation/LayeredDepthImageImplementation/x64
+LayeredDepthImageImplementation/x64
+
+#[Dd]ebug/
+#[Dd]ebugPublic/
+#[Rr]elease/
+#[Rr]eleases/
+#x64/
+#x86/
 bld/
-[Bb]in/
+#[Bb]in/
+#[Bb]in/
 [Oo]bj/
 [Ll]og/
 
 
 #Datasets and 3rd Party Library
-3rdPartyLibraries/
+#3rdPartyLibraries/
