@@ -15,6 +15,7 @@
 
 
 GLuint vbo;
+GLuint vao;
 float* data;
 
 
@@ -52,7 +53,6 @@ void LoadMesh()
 
 }
 
-
 void InitializeBuffers()
 {
 	int numVertices = 3;
@@ -74,9 +74,17 @@ void InitializeBuffers()
 	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), data, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	glCreateVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 }
-
-
 
 void CreateShaderProgram()
 {
@@ -151,12 +159,11 @@ void CreateShaderProgram()
 		std::vector<GLchar> errorLog(infoLogLength+1);
 		glGetProgramInfoLog(programId, infoLogLength, NULL, &errorLog[0]);
 		
-		std::cout << "Error In Compiling Fragment shader. Error Log : " << &errorLog[0] << std::endl;
+		std::cout << "Error In Linking Shaders to the Program. Error Log : " << &errorLog[0] << std::endl;
 		
 	}
 
 }
-
 
 void DisplayFunc()
 {
@@ -165,14 +172,13 @@ void DisplayFunc()
 	glClear(GL_COLOR_BUFFER_BIT);
 	
 	glUseProgram(programId);
+	glBindVertexArray(vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+
 	glUseProgram(0);
 
 
