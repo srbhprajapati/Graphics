@@ -8,6 +8,7 @@
 
 #include <vector>
 
+#include "OBJ_Loader.h"
 
 
 #define GL(func) func; CheckGLError(__FILE__, __LINE__);
@@ -15,8 +16,9 @@
 
 
 GLuint vbo;
+GLuint ibo;
 GLuint vao;
-float* data;
+int numIndices = 0;
 
 
 GLuint programId;
@@ -47,42 +49,93 @@ void CheckGLError(const char* file, int line)
 
 
 
-
 void LoadMesh()
 {
+	objl::Loader objLoader;
+	objLoader.LoadFile("C:\\Users\\srbhp\\Documents\\Mesh Resources\\Models\\Bench\\Obj\\Bench_LowRes.obj");
 
-}
+	for (int i = 0; i < objLoader.LoadedMeshes.size(); i++)
+	{
+		std::cout << "Mesh " << i << " :  " << objLoader.LoadedMeshes[i].MeshName << std::endl;
+	}
 
-void InitializeBuffers()
-{
-	int numVertices = 3;
-	data = new float[3 * numVertices];
 
-	data[0] = -0.5f;
-	data[1] = 0.0f;
-	data[2] = 1.0f;
-	data[3] = 0.0f;
-	data[4] = 0.5f;
-	data[5] = 1.0f;
-	data[6] = 0.5f;
-	data[7] = 0.0f;
-	data[8] = 5.0f;
+
+	std::vector<objl::Vertex> vertexbuffer = objLoader.LoadedMeshes[0].Vertices;
+
+	std::vector<float> positionBuffer;
+
+	//for (int i = 0; i < vertexbuffer.size(); i++)
+	//{
+	//	positionBuffer.push_back(vertexbuffer[i].Position.X);
+	//	positionBuffer.push_back(vertexbuffer[i].Position.Y);
+	//	positionBuffer.push_back(vertexbuffer[i].Position.Z);
+	//}
+
+	positionBuffer.push_back(-0.5f);
+	positionBuffer.push_back(0.0f);
+	positionBuffer.push_back(1.0f);
+	positionBuffer.push_back(0.0f);
+	positionBuffer.push_back(0.5f);
+	positionBuffer.push_back(1.0f);
+	positionBuffer.push_back(0.5f);
+	positionBuffer.push_back(0.0f);
+	positionBuffer.push_back(5.0f);
+
 
 
 	glCreateBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, positionBuffer.size() * sizeof(float), &positionBuffer[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+	//std::vector<unsigned int> indexbuffer = objLoader.LoadedMeshes[0].Indices;
+	
+	std::vector<unsigned int> indexbuffer;
+	indexbuffer.push_back(0);
+	indexbuffer.push_back(1);
+	indexbuffer.push_back(2);
+
+
+	glCreateBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexbuffer.size() * sizeof(unsigned int), &indexbuffer[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	numIndices = indexbuffer.size();
+
+
+}
+
+
+void InitializeBuffers()
+{
+	//int numVertices = 3;
+	//data = new float[3 * numVertices];
+
+	//data[0] = -0.5f;
+	//data[1] = 0.0f;
+	//data[2] = 1.0f;
+	//data[3] = 0.0f;
+	//data[4] = 0.5f;
+	//data[5] = 1.0f;
+	//data[6] = 0.5f;
+	//data[7] = 0.0f;
+	//data[8] = 5.0f;
+
+
 
 	glCreateVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 }
 
@@ -167,18 +220,19 @@ void CreateShaderProgram()
 
 void DisplayFunc()
 {
-	
+	GLint boundVbo, boundIbo;
+
 	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	
 	glUseProgram(programId);
 	glBindVertexArray(vao);
 
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+
 
 	glBindVertexArray(0);
-
-
 	glUseProgram(0);
 
 
