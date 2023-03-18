@@ -4,6 +4,7 @@
 *.user
 ipch/
 *.ipch
+*.filters
 
 # Build results
 ComputeShaderExample/Debug

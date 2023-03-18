@@ -4,12 +4,18 @@
 
 #include <GL/GL.h>
 #include <GL/GLU.h>
-#include <glut.h>
+#include <GL/freeglut.h>
+
 
 #include <vector>
 
-#include "OBJ_Loader.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #define GL(func) func; CheckGLError(__FILE__, __LINE__);
 
@@ -49,62 +55,83 @@ void CheckGLError(const char* file, int line)
 
 
 
-void LoadMesh()
+//void LoadMesh()
+//{
+//	objl::Loader objLoader;
+//	objLoader.LoadFile("C:\\Users\\srbhp\\Documents\\Mesh Resources\\Models\\Bench\\Obj\\Bench_LowRes.obj");
+//
+//	for (int i = 0; i < objLoader.LoadedMeshes.size(); i++)
+//	{
+//		std::cout << "Mesh " << i << " :  " << objLoader.LoadedMeshes[i].MeshName << std::endl;
+//	}
+//
+//
+//
+//	std::vector<objl::Vertex> vertexbuffer = objLoader.LoadedMeshes[0].Vertices;
+//
+//	std::vector<float> positionBuffer;
+//
+//	for (int i = 0; i < vertexbuffer.size(); i++)
+//	{
+//		positionBuffer.push_back(vertexbuffer[i].Position.X);
+//		positionBuffer.push_back(vertexbuffer[i].Position.Y);
+//		positionBuffer.push_back(vertexbuffer[i].Position.Z);
+//	}
+//
+//	//positionBuffer.push_back(-0.5f);
+//	//positionBuffer.push_back(0.0f);
+//	//positionBuffer.push_back(0.7f);
+//	//positionBuffer.push_back(0.0f);
+//	//positionBuffer.push_back(0.5f);
+//	//positionBuffer.push_back(0.7f);
+//	//positionBuffer.push_back(0.5f);
+//	//positionBuffer.push_back(0.0f);
+//	//positionBuffer.push_back(0.7f);
+//
+//
+//
+//	glCreateBuffers(1, &vbo);
+//	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+//	glBufferData(GL_ARRAY_BUFFER, positionBuffer.size() * sizeof(float), &positionBuffer[0], GL_STATIC_DRAW);
+//	glBindBuffer(GL_ARRAY_BUFFER, 0);
+//	
+//	std::vector<unsigned int> indexbuffer = objLoader.LoadedMeshes[0].Indices;
+//	
+//	//std::vector<unsigned int> indexbuffer;
+//	//indexbuffer.push_back(0);
+//	//indexbuffer.push_back(1);
+//	//indexbuffer.push_back(2);
+//
+//
+//	glCreateBuffers(1, &ibo);
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+//	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexbuffer.size() * sizeof(unsigned int), &indexbuffer[0], GL_STATIC_DRAW);
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//
+//	numIndices = indexbuffer.size();
+//
+//
+//}
+
+
+void LoadMesh2()
 {
-	objl::Loader objLoader;
-	objLoader.LoadFile("C:\\Users\\srbhp\\Documents\\Mesh Resources\\Models\\Bench\\Obj\\Bench_LowRes.obj");
+	std::cout << "Inside LoadMesh" << std::endl;
+	Assimp::Importer importer;
+	const aiScene* scene =  importer.ReadFile("C:\\Users\\srbhp\\Documents\\Mesh Resources\\Models\\Bench\\Obj\\Bench_LowRes.obj", aiProcess_CalcTangentSpace);
 
-	for (int i = 0; i < objLoader.LoadedMeshes.size(); i++)
-	{
-		std::cout << "Mesh " << i << " :  " << objLoader.LoadedMeshes[i].MeshName << std::endl;
-	}
+	std::cout << scene->mName.C_Str() << std::endl;
+}
 
+glm::mat4 GetMVPMatrix()
+{
+	glm::mat4 viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, -100.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f));
 
+	glm::mat4 projMatrix = glm::perspective(glm::radians(45.0f), 1.0f, 50.0f, 300.0f);
 
-	std::vector<objl::Vertex> vertexbuffer = objLoader.LoadedMeshes[0].Vertices;
-
-	std::vector<float> positionBuffer;
-
-	//for (int i = 0; i < vertexbuffer.size(); i++)
-	//{
-	//	positionBuffer.push_back(vertexbuffer[i].Position.X);
-	//	positionBuffer.push_back(vertexbuffer[i].Position.Y);
-	//	positionBuffer.push_back(vertexbuffer[i].Position.Z);
-	//}
-
-	positionBuffer.push_back(-0.5f);
-	positionBuffer.push_back(0.0f);
-	positionBuffer.push_back(1.0f);
-	positionBuffer.push_back(0.0f);
-	positionBuffer.push_back(0.5f);
-	positionBuffer.push_back(1.0f);
-	positionBuffer.push_back(0.5f);
-	positionBuffer.push_back(0.0f);
-	positionBuffer.push_back(5.0f);
-
-
-
-	glCreateBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, positionBuffer.size() * sizeof(float), &positionBuffer[0], GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-	//std::vector<unsigned int> indexbuffer = objLoader.LoadedMeshes[0].Indices;
-	
-	std::vector<unsigned int> indexbuffer;
-	indexbuffer.push_back(0);
-	indexbuffer.push_back(1);
-	indexbuffer.push_back(2);
-
-
-	glCreateBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexbuffer.size() * sizeof(unsigned int), &indexbuffer[0], GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	numIndices = indexbuffer.size();
-
-
+	return projMatrix * viewMatrix;
 }
 
 
@@ -132,6 +159,7 @@ void InitializeBuffers()
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
 	
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -143,16 +171,17 @@ void CreateShaderProgram()
 {
 
 	const GLchar* vertexShaderSource = R"(
-	#version 330
+	#version 430
 	layout(location = 0) in vec3 position;
+	layout(location = 2) uniform mat4 mvpMatrix;
 	void main()
 	{
-		gl_Position = vec4(position.x, position.y, 0.0, 1.0);
+		gl_Position = mvpMatrix*vec4(position.x, position.y, position.z, 1.0);
 	}
 	)";
 
 	const GLchar* fragmentShaderSource = R"(
-    #version 330
+    #version 430
     out vec4 outColor;
     void main()
     {
@@ -216,19 +245,25 @@ void CreateShaderProgram()
 		
 	}
 
+	glUseProgram(programId);
+	glm::mat4 mvpMat = GetMVPMatrix();
+	glUniformMatrix4fv(2, 1, GL_FALSE, glm::value_ptr(mvpMat));
+	glUseProgram(0);
+
+
 }
 
 void DisplayFunc()
 {
-	GLint boundVbo, boundIbo;
 
 	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	
+
 	glUseProgram(programId);
 	glBindVertexArray(vao);
 
-
+	
 	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
 
 
@@ -255,8 +290,9 @@ int main(int argc, char** argv)
 		std::cout << "Unable to Initalize GLEW. Err : " << errStr << std::endl;
 	}
 
+	std::cout << "Version GLSL: "<< glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 
-	LoadMesh();
+	LoadMesh2();
 	InitializeBuffers();
 	CreateShaderProgram();
 

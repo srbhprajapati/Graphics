@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{6c4ea7a2-d405-479f-9a21-870932353afe}</ProjectGuid>
-    <RootNamespace>BasicMeshLoading</RootNamespace>
+    <ProjectGuid>{47b4b9df-906f-46e3-aa44-1bfa715c8834}</ProjectGuid>
+    <RootNamespace>DirectXTriangle</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -88,13 +88,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\srbhp\Documents\OpenGL_Libs\glew-2.1.0\include;C:\Users\srbhp\Documents\OpenGL_Libs\glut-3.7.6-bin;C:\Users\srbhp\Documents\OpenGL_Libs\glm-0.9.9.8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\srbhp\Documents\OpenGL_Libs\glew-2.1.0\lib\Release\Win32;C:\Users\srbhp\Documents\OpenGL_Libs\glut-3.7.6-bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glut32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -117,15 +114,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>FREEGLUT_STATIC;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\srbhp\Documents\OpenGL_Libs\assimp-5.2.5\include;C:\Users\srbhp\Documents\OpenGL_Libs\freeglut-3.4.0\include;C:\Users\srbhp\Documents\OpenGL_Libs\glm-0.9.9.8;C:\Users\srbhp\Documents\OpenGL_Libs\glew-2.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\srbhp\Documents\OpenGL_Libs\assimp-5.2.5\lib\Debug;C:\Users\srbhp\Documents\OpenGL_Libs\freeglut-3.4.0\lib\Debug;C:\Users\srbhp\Documents\OpenGL_Libs\glew-2.1.0\lib\Release\x64;C:\Users\srbhp\Documents\OpenGL_Libs\glut-3.7.6-bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc142-mtd.lib;freeglut_staticd.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -145,10 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BasicMeshLoading.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="OBJ_Loader.h" />
+    <ClCompile Include="DirectXTriangle.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
