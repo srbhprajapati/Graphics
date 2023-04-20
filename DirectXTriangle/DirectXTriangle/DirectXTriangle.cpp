@@ -31,6 +31,8 @@ ID3D12RootSignature* rootSignature;
 ID3D12Debug* debugInterface;
 ID3D12DescriptorHeap* renderTargetDescriptorHeap;
 
+
+
 D3D12_CPU_DESCRIPTOR_HANDLE renderTargetCPUDescriptorHandles[NUMFRAMES];
 
 
@@ -128,6 +130,36 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, in
 	CheckSucceeded(hresult);
 
 
+	float vertexBufferData[] = { -0.25f, -0.25f, 0.5f, 1.0f,
+								 -0.25f, 0.25f, 0.5f, 1.0f,
+								 0.25f, 0.25f, 0.5f, 1.0f };
+
+	ID3D12Resource* vertexBufferResource;
+
+	CD3DX12_HEAP_PROPERTIES hprop(D3D12_HEAP_TYPE_UPLOAD);
+	CD3DX12_RESOURCE_DESC buffDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexBufferData));
+	
+	hresult = device->CreateCommittedResource(
+		&hprop,
+		D3D12_HEAP_FLAG_NONE,
+		&buffDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+		IID_PPV_ARGS(&vertexBufferResource));
+	CheckSucceeded(hresult);
+
+	UINT8* vertexDataOnGPUPtr;
+	CD3DX12_RANGE readRange(0, 0);
+	hresult = vertexBufferResource->Map(0, &readRange, reinterpret_cast<void**>(&vertexDataOnGPUPtr));
+	CheckSucceeded(hresult);
+	memcpy(vertexDataOnGPUPtr, vertexBufferData, sizeof(vertexBufferData));
+	vertexBufferResource->Unmap(0, nullptr);
+
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	vertexBufferView.BufferLocation = vertexBufferResource->GetGPUVirtualAddress();
+	vertexBufferView.StrideInBytes = 4 * sizeof(float);
+	vertexBufferView.SizeInBytes = sizeof(vertexBufferData);
+
+
 	
 
 	D3D12_DESCRIPTOR_HEAP_DESC renderTargetHeapDesc = {};
@@ -180,7 +212,16 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, in
 	scissorRect.right = swapChainDesc.Width;
 	scissorRect.bottom = swapChainDesc.Height;
 
+
+	// Define the vertex input layout.
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};
+
+
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelinStateDesc = { 0 };
+	pipelinStateDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
 	pipelinStateDesc.VS.pShaderBytecode = vertexShader->GetBufferPointer();
 	pipelinStateDesc.VS.BytecodeLength = vertexShader->GetBufferSize();
 	pipelinStateDesc.PS.pShaderBytecode = pixelShader->GetBufferPointer();
@@ -241,7 +282,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, in
 		graphicsCommandList->RSSetScissorRects(1, &scissorRect);
 
 		graphicsCommandList->SetGraphicsRootSignature(rootSignature);
-
+		graphicsCommandList->IASetVertexBuffers(0, 1, &vertexBufferView);
 		graphicsCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		graphicsCommandList->SetPipelineState(pipelineState);
 
