@@ -20,5 +20,5 @@ PixelIn vsMain(VertexIn vert)
 
 float4 psMain() : SV_TARGET
 {
-	return float4(0, 0, 0, 1);
+	return float4(0, 1, 0, 1);
 }
