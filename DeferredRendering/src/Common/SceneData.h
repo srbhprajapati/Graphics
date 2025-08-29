@@ -18,6 +18,17 @@ struct Vertex {
 	float z;
 };
 
+struct Normal {
+	float x;
+	float y;
+	float z;
+};
+
+struct UV {
+	float u;
+	float v;
+};
+
 struct Transform {
 	float matrix[16];
 };
@@ -36,7 +47,10 @@ struct SceneNode
 
 struct MeshNode : public SceneNode {
 	std::vector<Vertex> vertices;
+	std::vector<Normal> normals;
+	std::vector<UV> uvs;
 	std::vector<unsigned int> indices;
+
 
 	unsigned int materialIndex;
 };
@@ -80,7 +94,7 @@ struct Material {
 
 struct SceneData
 {	
-	SceneNode rootNode;
+	std::unique_ptr<SceneNode> rootNode;
 	std::map<std::string, Material> Materials;
 
 	unsigned int latestNodeIndex = 0;

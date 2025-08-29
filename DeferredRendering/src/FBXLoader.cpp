@@ -25,7 +25,7 @@ void FBXLoader::LoadFBXFile(std::string filePath, SceneData* scene)
 
 
 	ParseScene(fbxScene, scene);
-	//GetMaterials(fbxScene, scene);
+	ParseMaterials(fbxScene, scene);
 
 	fbxScene->Destroy();
 	importer->Destroy();
@@ -40,12 +40,18 @@ void FBXLoader::ParseScene(FbxScene* fbxScene, SceneData* scene)
 {
 	FbxNode* rootNode = fbxScene->GetRootNode();
 
+	scene->rootNode = std::make_unique<SceneNode>();
+
+	scene->rootNode->nodeId = scene->latestNodeIndex++;
+	scene->rootNode->nodeName = "RootNode";
+	scene->rootNode->nodeType = "Unknown";
+
 	if (rootNode)
 	{
 		for (int i = 0; i < rootNode->GetChildCount(); i++)
 		{
 			FbxNode* childNode = rootNode->GetChild(i);
-			ParseNode(childNode, scene, 1, nullptr);
+			ParseNode(childNode, scene, 1, scene->rootNode.get());
 		}
 	}
 }
@@ -92,7 +98,7 @@ void FBXLoader::ParseNode(FbxNode* fbxNode, SceneData* scene, int nodeLevel, Sce
 }
 
 
-void FBXLoader::GetMaterials(FbxScene* fbxScene, SceneData* scene)
+void FBXLoader::ParseMaterials(FbxScene* fbxScene, SceneData* scene)
 {
 	int materialCount = fbxScene->GetSrcObjectCount<FbxSurfaceMaterial>();
 	for (int i = 0; i < materialCount; ++i)
@@ -210,6 +216,54 @@ SceneNode* FBXLoader::ParseMesh(FbxNode* node, SceneNode* parent)
 	auto mesh = std::make_unique<MeshNode>();
 	mesh->nodeType = "Mesh";
 
+	FbxMesh* fbxMesh = node->GetMesh();
+
+	int polygonCount = fbxMesh->GetPolygonCount();
+	unsigned int vertexOffset = 0;
+
+	for (int poly = 0; poly < polygonCount; ++poly) {
+		
+		int polySize = fbxMesh->GetPolygonSize(poly);
+		
+		//Only Polygon of size 3 and 4 supported (More can be supported later on)
+		if (polySize == 3)
+		{
+			for (int vert = 0; vert < polySize; ++vert) {
+				int cpIndex = fbxMesh->GetPolygonVertex(poly, vert);
+
+
+				
+				FbxVector4 position = fbxMesh->GetControlPointAt(cpIndex);
+				FbxVector4 normal = GetNormal(fbxMesh, poly, vert);
+				FbxVector2 uv = GetUV(fbxMesh, poly, vert);
+
+				mesh->vertices.push_back({ (float)position[0], (float)position[1], (float)position[2] });
+				mesh->normals.push_back({ (float)normal[0], (float)normal[1], (float)normal[2] });
+				mesh->uvs.push_back({ (float)uv[0], (float)uv[1] });
+				mesh->indices.push_back(vertexOffset++);
+			}
+		}
+		else if (polySize == 4)
+		{
+			int vertArray[] = { 0,1,2,0,2,3 };
+
+			for (int i = 0; i < 6; i++) {
+				int vert = vertArray[i];
+				int cpIndex = fbxMesh->GetPolygonVertex(poly, vert);
+
+				FbxVector4 position = fbxMesh->GetControlPointAt(cpIndex);
+				FbxVector4 normal = GetNormal(fbxMesh, poly, vert);
+				FbxVector2 uv = GetUV(fbxMesh, poly, vert);
+
+				mesh->vertices.push_back({ (float)position[0], (float)position[1], (float)position[2] });
+				mesh->normals.push_back({ (float)normal[0], (float)normal[1], (float)normal[2] });
+				mesh->uvs.push_back({ (float)uv[0], (float)uv[1] });
+				mesh->indices.push_back(vertexOffset++);
+			}
+
+		}
+	}
+
 	parent->children.push_back(std::move(mesh));
 	return parent->children.back().get();
 }
@@ -232,4 +286,54 @@ SceneNode* FBXLoader::ParseCamera(FbxNode* node, SceneNode* parent)
 
 	parent->children.push_back(std::move(camera));
 	return parent->children.back().get();
+}
+
+
+
+// Helper function to get Normal per polygon vertex
+FbxVector4 FBXLoader::GetNormal(FbxMesh* mesh, int polygonIndex, int vertexIndex, int normalLayer) {
+	
+	FbxVector4 normalValue(0.0f, 0.0f, 0.0f, 0.0f);
+	if (mesh->GetElementNormalCount() > normalLayer) {
+		auto* normalElement = mesh->GetElementNormal(normalLayer);
+		if (normalElement->GetMappingMode() == FbxGeometryElement::eByControlPoint) {
+			int cpIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
+			int index = (normalElement->GetReferenceMode() == FbxGeometryElement::eDirect)
+				? cpIndex
+				: normalElement->GetIndexArray().GetAt(cpIndex);
+			normalValue = normalElement->GetDirectArray().GetAt(index);
+		}
+		else if (normalElement->GetMappingMode() == FbxGeometryElement::eByPolygonVertex) {
+			int polyVertIndex = polygonIndex * 3 + vertexIndex; // triangles
+			int index = (normalElement->GetReferenceMode() == FbxGeometryElement::eDirect)
+				? polyVertIndex
+				: normalElement->GetIndexArray().GetAt(polyVertIndex);
+			normalValue = normalElement->GetDirectArray().GetAt(index);
+		}
+	}
+	return normalValue;
+}
+
+
+// Helper function to get UV per polygon vertex
+FbxVector2 FBXLoader::GetUV(FbxMesh* mesh, int polygonIndex, int vertexIndex, int uvLayer) {
+	FbxVector2 uvValue;
+	if (mesh->GetElementUVCount() > uvLayer) {
+		auto* uvElement = mesh->GetElementUV(uvLayer);
+		if (uvElement->GetMappingMode() == FbxGeometryElement::eByControlPoint) {
+			int cpIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
+			int index = (uvElement->GetReferenceMode() == FbxGeometryElement::eDirect)
+				? cpIndex
+				: uvElement->GetIndexArray().GetAt(cpIndex);
+			uvValue = uvElement->GetDirectArray().GetAt(index);
+		}
+		else if (uvElement->GetMappingMode() == FbxGeometryElement::eByPolygonVertex) {
+			int polyVertIndex = polygonIndex * 3 + vertexIndex; // assume triangles
+			int index = (uvElement->GetReferenceMode() == FbxGeometryElement::eDirect)
+				? polyVertIndex
+				: uvElement->GetIndexArray().GetAt(polyVertIndex);
+			uvValue = uvElement->GetDirectArray().GetAt(index);
+		}
+	}
+	return uvValue;
 }

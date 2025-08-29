@@ -17,12 +17,14 @@ private:
 
 	static void ParseScene(FbxScene* fbxScene, SceneData* scene);
 	static void ParseNode(FbxNode* fbxNode, SceneData* scene, int nodeLevel, SceneNode* parent);
-	static void GetMaterials(FbxScene* fbxScene, SceneData* scene);
-
+	static void ParseMaterials(FbxScene* fbxScene, SceneData* scene);
 	static SceneNode* ParseMesh(FbxNode* node, SceneNode* parent);
 	static SceneNode* ParseLight(FbxNode* node, SceneNode* parent);
 	static SceneNode* ParseCamera(FbxNode* node, SceneNode* parent);
 
+
+	static FbxVector4 GetNormal(FbxMesh* mesh, int polygonIndex, int vertexIndex, int normalLayer = 0);
+	static FbxVector2 GetUV(FbxMesh* mesh, int polygonIndex, int vertexIndex, int uvLayer = 0);
 	static void GetProperty(FbxProperty& prop, Color& col);
 	static void GetProperty(FbxProperty& prop, float& factor);
 	static void GetProperty(FbxProperty& prop, std::string& path);
