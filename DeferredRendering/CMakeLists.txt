@@ -8,19 +8,38 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Source Files
 set(SOURCE_FILES	src/main.cpp
-					src/FBXLoader.h
-					src/FBXLoader.cpp
+					src/AssetLoader/FBXLoader.h
+					src/AssetLoader/FBXLoader.cpp
 					src/Common/SceneData.h
-					src/Common/SceneData.cpp)
+					src/Common/SceneData.cpp
+					src/Engine/Core/SceneGraph.h
+					src/Engine/Core/SceneGraph.cpp
+				    src/Engine/Core/Entity.h
+				    src/Engine/Core/Entity.cpp
+					src/Engine/Core/Components.h)
+
+
 	
-source_group("AssetLoader" FILES	src/FBXLoader.h
-									src/FBXLoader.cpp)
+source_group("AssetLoader" FILES	src/AssetLoader/FBXLoader.h
+									src/AssetLoader/FBXLoader.cpp)
 									
 source_group("Common" FILES	src/Common/SceneData.h
 							src/Common/SceneData.cpp)
 
+source_group("Engine/Core" FILES	src/Engine/Core/SceneGraph.h
+									src/Engine/Core/SceneGraph.cpp
+									src/Engine/Core/Entity.h
+									src/Engine/Core/Entity.cpp
+									src/Engine/Core/Components.h)
+
+
+
+
+
 # Main Executable
 add_executable(DeferredRendering ${SOURCE_FILES})
+
+
 
 
 ##### 3rd party libraries 
@@ -44,23 +63,33 @@ set_target_properties(GLFW PROPERTIES
 )
 
 
-#target_include_directories(DeferredRendering PRIVATE )
+#ENTT
+add_library(Entt INTERFACE IMPORTED)
+set_target_properties(Entt PROPERTIES 
+    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/ThirdParty/entt"
+)
+
+#GLM
+add_library(GLM INTERFACE IMPORTED)
+set_target_properties(GLM PROPERTIES 
+    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/ThirdParty/glm"
+)
+
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+#Include Directories
+target_include_directories(DeferredRendering PRIVATE $(CMAKE_CURRENT_SOURCE_DIR)/src)
+
 
 
 target_link_libraries(DeferredRendering PRIVATE GLFW
-												FbxSdk)
+												FbxSdk
+												Entt
+												GLM)
 
 
 if(WIN32)
-#        add_custom_command(
-#            TARGET DeferredRendering POST_BUILD
-#            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#            $<TARGET_RUNTIME_DLLS:DeferredRendering>
-#            $<TARGET_FILE_DIR:DeferredRendering>
-#            COMMAND_EXPAND_LISTS
-#            COMMENT "Copying runtime DLLs for DeferredRendering"
-#        )
-
 
 add_custom_command(TARGET DeferredRendering POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:FbxSdk> $<TARGET_FILE_DIR:DeferredRendering>

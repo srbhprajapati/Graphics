@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 #include <memory>
-
+#include <glm.hpp>
 
 struct Color {
 	float r;
@@ -30,7 +30,7 @@ struct UV {
 };
 
 struct Transform {
-	float matrix[16];
+	glm::mat4 matrix;
 };
 
 struct SceneNode
