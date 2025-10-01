@@ -16,15 +16,28 @@ set(SOURCE_FILES	src/main.cpp
 					src/Engine/Core/SceneGraph.cpp
 				    src/Engine/Core/Entity.h
 				    src/Engine/Core/Entity.cpp
-					src/Engine/Core/Components.h)
-
-
+					src/Engine/Core/Components.h
+					src/Resources/Material.h
+					src/Resources/Material.cpp
+					src/Resources/PbrShader.h
+					src/Resources/PbrShader.cpp
+					src/Resources/Shader.h
+					src/Resources/Shader.cpp
+					src/Resources/Texture.h
+					src/Resources/Texture.cpp
+					src/Resources/ResourceManager.h
+					src/Resources/ResourceManager.cpp
+					ThirdParty/glad/include/glad/glad.h
+					ThirdParty/glad/src/glad.c)
 	
+
 source_group("AssetLoader" FILES	src/AssetLoader/FBXLoader.h
 									src/AssetLoader/FBXLoader.cpp)
+							
 									
 source_group("Common" FILES	src/Common/SceneData.h
 							src/Common/SceneData.cpp)
+
 
 source_group("Engine/Core" FILES	src/Engine/Core/SceneGraph.h
 									src/Engine/Core/SceneGraph.cpp
@@ -32,6 +45,21 @@ source_group("Engine/Core" FILES	src/Engine/Core/SceneGraph.h
 									src/Engine/Core/Entity.cpp
 									src/Engine/Core/Components.h)
 
+
+source_group("Resources" FILES		src/Resources/Material.h
+									src/Resources/Material.cpp
+									src/Resources/Shader.h
+									src/Resources/Shader.cpp
+									src/Resources/PbrShader.h
+									src/Resources/PbrShader.cpp
+									src/Resources/Texture.h
+									src/Resources/Texture.cpp
+									src/Resources/ResourceManager.h
+									src/Resources/ResourceManager.cpp)
+
+
+source_group("ThirdParty/glad" FILES	ThirdParty/glad/include/glad/glad.h
+										ThirdParty/glad/src/glad.c)
 
 
 
@@ -79,7 +107,8 @@ set_target_properties(GLM PROPERTIES
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #Include Directories
-target_include_directories(DeferredRendering PRIVATE $(CMAKE_CURRENT_SOURCE_DIR)/src)
+target_include_directories(DeferredRendering PRIVATE $(CMAKE_CURRENT_SOURCE_DIR)/src
+													$(CMAKE_CURRENT_SOURCE_DIR)/ThirdParty/glad/include)
 
 
 
