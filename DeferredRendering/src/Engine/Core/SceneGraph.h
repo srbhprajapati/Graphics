@@ -24,4 +24,8 @@ public:
 private:
 	
 	Entity ParseSceneNode(std::unique_ptr<SceneNode>& node, Entity& parent);
+
+	void AddMeshComponent(Entity& node, const MeshNode* sNode);
+	void AddCameraComponent(Entity& node, const CameraNode* sNode);
+	void AddLightComponent(Entity& node, const LightNode* sNode);
 };

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "entt.hpp"
+#include <windows.h>
+#include <gl/GL.h>
 #include <glm.hpp>
 
 struct RelationshipComponent {
@@ -19,3 +21,51 @@ struct TransformComponent
 };
 
 
+struct MeshComponent
+{
+	std::vector<Vertex> vertices;
+	std::vector<Normal> normals;
+	std::vector<UV> uvs;
+	std::vector<unsigned int> indices;
+
+
+	unsigned int materialIndex;
+};
+
+struct CameraComponent
+{
+	unsigned int cameraIndex;
+};
+
+struct LightComponent
+{
+	unsigned int lightIndex;
+};
+
+
+struct MaterialComponent {
+
+	GLuint shaderID;
+
+	std::string Name;
+
+	glm::vec3 AmbientColor;
+	glm::vec3 DiffuseColor;
+	glm::vec3 TransparentColor;
+	glm::vec3 SpecularColor;
+	glm::vec3 ReflectionColor;
+	glm::vec3 EmissiveColor;
+
+	float AmbientFactor;
+	float DiffuseFactor;
+	float TransparencyFactor;
+	float ReflectionFactor;
+
+	std::string DiffuseTexture = "";
+	std::string SpecularTexture = "";
+	std::string EmissiveTexture = "";
+
+	float Shininess;
+	float Opacity;
+	float Reflectivity;
+};

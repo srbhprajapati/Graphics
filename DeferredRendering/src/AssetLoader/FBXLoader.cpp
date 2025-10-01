@@ -21,8 +21,6 @@ void FBXLoader::LoadFBXFile(std::string filePath, SceneData* scene)
 
 	FbxScene* fbxScene = FbxScene::Create(sdkManager, "DefaultScene");
 	importer->Import(fbxScene);
-	
-
 
 	ParseScene(fbxScene, scene);
 	ParseMaterials(fbxScene, scene);
@@ -32,8 +30,6 @@ void FBXLoader::LoadFBXFile(std::string filePath, SceneData* scene)
 	ioSettings->Destroy();
 	sdkManager->Destroy();
 }
-
-
 
 
 void FBXLoader::ParseScene(FbxScene* fbxScene, SceneData* scene)
@@ -103,95 +99,91 @@ void FBXLoader::ParseMaterials(FbxScene* fbxScene, SceneData* scene)
 	int materialCount = fbxScene->GetSrcObjectCount<FbxSurfaceMaterial>();
 	for (int i = 0; i < materialCount; ++i)
 	{
-		Material sceneMaterial;
+		MaterialData sceneMaterial;
 
 		// Retrieve the material at the current index
 		FbxSurfaceMaterial* material = fbxScene->GetSrcObject<FbxSurfaceMaterial>(i);
 		sceneMaterial.Name = material->GetName();
 
-		FbxProperty prop = material->GetFirstProperty();
-		while(prop.IsValid())
-		{
-			
-			if (!prop.HasDefaultValue(prop))
-			{
-				FbxString propertyName = prop.GetName();
-				std::cout << "	PropertyName : " << propertyName << std::endl;
 
-				if (propertyName == "AmbientColor")	
-				{
-					GetProperty(prop, sceneMaterial.AmbientColor);
-				}
-				else if (propertyName == "DiffuseColor")
-				{
-					GetProperty(prop, sceneMaterial.DiffuseTexture);
-					GetProperty(prop, sceneMaterial.DiffuseColor);
-				}
-				else if (propertyName == "DiffuseFactor")
-				{
-					GetProperty(prop, sceneMaterial.DiffuseFactor);
-				}
-				else if (propertyName == "TransparentColor")
-				{
-					GetProperty(prop, sceneMaterial.TransparentColor);
-				}
-				else if (propertyName == "TransparencyFactor")
-				{
-					GetProperty(prop, sceneMaterial.TransparencyFactor);
-				}
-				else if (propertyName == "SpecularColor")
-				{
-					GetProperty(prop, sceneMaterial.SpecularColor);
-					GetProperty(prop, sceneMaterial.SpecularTexture);
-				}
-				else if (propertyName == "ReflectionColor")
-				{
-					GetProperty(prop, sceneMaterial.ReflectionColor);
-				}
-				else if (propertyName == "ReflectionFactor")
-				{
-					GetProperty(prop, sceneMaterial.ReflectionFactor);
-				}
-				else if (propertyName == "Emissive")
-				{
-					GetProperty(prop, sceneMaterial.EmissiveColor);
-					GetProperty(prop, sceneMaterial.EmissiveTexture);
-				}
-				else if (propertyName == "Shininess")
-				{
-					GetProperty(prop, sceneMaterial.Shininess);
-				}
-				else if (propertyName == "Opacity")
-				{
-					GetProperty(prop, sceneMaterial.Opacity);
-				}
-				else if (propertyName == "Reflectivity")
-				{
-					GetProperty(prop, sceneMaterial.Reflectivity);
-				}
-			}
-			prop = material->GetNextProperty(prop);
-		}
+		//Shading Model
+		FbxProperty prop = material->FindProperty(FbxSurfaceMaterial::sShadingModel);
+		if (prop.IsValid()) sceneMaterial.ShadingModel = prop.Get<FbxString>().Buffer();
+
+		//MultiLayer
+		GetProperty(material, FbxSurfaceMaterial::sMultiLayer, sceneMaterial.IsMultiLayer);
+
+		//Ambient
+		GetProperty(material, FbxSurfaceMaterial::sAmbient, sceneMaterial.AmbientColor);
+		GetProperty(material, FbxSurfaceMaterial::sAmbient, sceneMaterial.AmbientFactor);
+
+		//Diffuse
+		GetProperty(material, FbxSurfaceMaterial::sDiffuse, sceneMaterial.DiffuseColor);
+		GetProperty(material, FbxSurfaceMaterial::sDiffuse, sceneMaterial.DiffuseFactor);
+		GetProperty(material, FbxSurfaceMaterial::sDiffuse, sceneMaterial.DiffuseTexture);
+
+		//Specular
+		GetProperty(material, FbxSurfaceMaterial::sSpecular, sceneMaterial.SpecularColor);
+		GetProperty(material, FbxSurfaceMaterial::sSpecular, sceneMaterial.SpecularFactor);
+		GetProperty(material, FbxSurfaceMaterial::sSpecular, sceneMaterial.SpecularTexture);
+
+		//Emissive
+		GetProperty(material, FbxSurfaceMaterial::sEmissive, sceneMaterial.EmissiveColor);
+		GetProperty(material, FbxSurfaceMaterial::sEmissive, sceneMaterial.EmissiveFactor);
+		GetProperty(material, FbxSurfaceMaterial::sEmissive, sceneMaterial.EmissiveTexture);
+
+		//Transparent
+		GetProperty(material, FbxSurfaceMaterial::sTransparentColor, sceneMaterial.TransparentColor);
+		GetProperty(material, FbxSurfaceMaterial::sTransparencyFactor, sceneMaterial.TransparencyFactor);
+
+		//Reflection
+		GetProperty(material, FbxSurfaceMaterial::sReflection, sceneMaterial.ReflectionColor);
+		GetProperty(material, FbxSurfaceMaterial::sReflection, sceneMaterial.ReflectionFactor);
+
+		//Shininess
+		GetProperty(material, FbxSurfaceMaterial::sShininess, sceneMaterial.Shininess);
+
+		//Reflectivity
+		GetProperty(material, "Reflectivity", sceneMaterial.Reflectivity);
+
+		//Opacity
+		GetProperty(material, "Opacity", sceneMaterial.Opacity);
+
+		//NormalMap
+		GetProperty(material, FbxSurfaceMaterial::sNormalMap, sceneMaterial.NormalMapTexture);
+
+		//Bump
+		GetProperty(material, FbxSurfaceMaterial::sBump, sceneMaterial.BumpMapTexture);
+		GetProperty(material, FbxSurfaceMaterial::sBumpFactor, sceneMaterial.BumpFactor);
+
+		//Displacement
+		GetProperty(material, FbxSurfaceMaterial::sDisplacementColor, sceneMaterial.DisplacementColor);
+		GetProperty(material, FbxSurfaceMaterial::sDisplacementFactor, sceneMaterial.DisplacementFactor);
+
+		//VectorDisplacement
+		GetProperty(material, FbxSurfaceMaterial::sVectorDisplacementColor, sceneMaterial.VectorDisplacementColor);
+		GetProperty(material, FbxSurfaceMaterial::sVectorDisplacementFactor, sceneMaterial.VectorDisplacementFactor);
+
+
 		scene->Materials.emplace(sceneMaterial.Name, (std::move(sceneMaterial)));
 	}
 }
 
 
 
-void FBXLoader::GetProperty(FbxProperty& prop, float& factor)
+void FBXLoader::GetProperty(FbxSurfaceMaterial* material, const char* propertyName, float& factor)
 {
-	if (prop.GetPropertyDataType().GetType() == eFbxDouble)
+	FbxProperty prop = material->FindProperty(propertyName);
+	if (prop.IsValid())
 	{
-		FbxDouble fac = prop.Get<FbxDouble>();
-		factor = fac;
+		factor = prop.Get<FbxDouble>();
 	}
-
 }
 
-void FBXLoader::GetProperty(FbxProperty& prop, Color& col)
+void FBXLoader::GetProperty(FbxSurfaceMaterial* material, const char* propertyName, Color& col)
 {
-
-	if (prop.GetPropertyDataType().GetType() == eFbxDouble3)
+	FbxProperty prop = material->FindProperty(propertyName);
+	if (prop.IsValid())
 	{
 		FbxDouble3 color = prop.Get<FbxDouble3>();
 		col.r = color[0];
@@ -200,13 +192,28 @@ void FBXLoader::GetProperty(FbxProperty& prop, Color& col)
 	}
 }
 
-void FBXLoader::GetProperty(FbxProperty& prop, std::string& path)
+void FBXLoader::GetProperty(FbxSurfaceMaterial* material, const char* propertyName, bool& val)
 {
-	int textureCount = prop.GetSrcObjectCount<FbxFileTexture>();
-	if (textureCount > 0)
+
+	FbxProperty prop = material->FindProperty(propertyName);
+	if (prop.IsValid())
 	{
-		FbxFileTexture* texture = prop.GetSrcObject<FbxFileTexture>(0);
-		path = texture->GetRelativeFileName();
+		val = prop.Get<FbxBool>();
+	}
+}
+
+void FBXLoader::GetProperty(FbxSurfaceMaterial* material, const char* propertyName, std::string& path)
+{
+
+	FbxProperty prop = material->FindProperty(propertyName);
+	if (prop.IsValid())
+	{
+		int textureCount = prop.GetSrcObjectCount<FbxFileTexture>();
+		if (textureCount > 0)
+		{
+			FbxFileTexture* texture = prop.GetSrcObject<FbxFileTexture>(0);
+			path = texture->GetRelativeFileName();
+		}
 	}
 }
 

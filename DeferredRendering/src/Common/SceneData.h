@@ -42,6 +42,8 @@ struct SceneNode
 
 	Transform localTransform;
 	Transform globalTransform;
+
+	virtual ~SceneNode() = default;
 };
 
 
@@ -66,9 +68,11 @@ struct CameraNode : public SceneNode {
 
 
 
-struct Material {
+struct MaterialData {
 
 	std::string Name;
+	std::string ShadingModel;
+	bool IsMultiLayer;
 
 	Color AmbientColor;
 	Color DiffuseColor;
@@ -76,15 +80,24 @@ struct Material {
 	Color SpecularColor;
 	Color ReflectionColor;
 	Color EmissiveColor;
+	Color DisplacementColor;
+	Color VectorDisplacementColor;
 
 	float AmbientFactor;
 	float DiffuseFactor;
+	float SpecularFactor;
+	float EmissiveFactor;
 	float TransparencyFactor;
 	float ReflectionFactor;
+	float BumpFactor;
+	float DisplacementFactor;
+	float VectorDisplacementFactor;
 
 	std::string DiffuseTexture = "";
 	std::string SpecularTexture = "";
 	std::string EmissiveTexture = "";
+	std::string NormalMapTexture = "";
+	std::string BumpMapTexture = "";
 
 	float Shininess;
 	float Opacity;
@@ -95,7 +108,7 @@ struct Material {
 struct SceneData
 {	
 	std::unique_ptr<SceneNode> rootNode;
-	std::map<std::string, Material> Materials;
+	std::map<std::string, MaterialData> Materials;
 
 	unsigned int latestNodeIndex = 0;
 };
