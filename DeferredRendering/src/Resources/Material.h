@@ -32,6 +32,7 @@ private:
 	std::unique_ptr<Texture> diffuseTexture;
 	std::unique_ptr<Texture> specularTexture;
 	std::unique_ptr<Texture> emissiveTexture;
+	std::unique_ptr<Texture> normalTexture;
 
 	float shininess;
 	float opacity;

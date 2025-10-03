@@ -174,3 +174,27 @@ PbrShader::PbrShader() : Shader(PBRVertexShader, PBRFragmentShader)
 {
 }
 
+
+
+void PbrShader::SetDiffuseMap(GLuint texId)
+{
+    this->SetUniformInt("albedoMap", texId);
+}
+
+
+void PbrShader::SetNormalMap(GLuint texId)
+{
+    this->SetUniformInt("normalMap", texId);
+}
+
+
+void PbrShader::SetSpecularMap(GLuint texId)
+{
+    this->SetUniformInt("metallicMap", texId);
+}
+
+
+void PbrShader::SetEmissiveMap(GLuint texId)
+{
+    //this->SetUniformInt("albedoMap", texId);
+}

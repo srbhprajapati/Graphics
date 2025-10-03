@@ -23,10 +23,6 @@ struct TransformComponent
 
 struct MeshComponent
 {
-	std::vector<Vertex> vertices;
-	std::vector<Normal> normals;
-	std::vector<UV> uvs;
-	std::vector<unsigned int> indices;
 
 
 	unsigned int materialIndex;

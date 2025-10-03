@@ -10,8 +10,11 @@ public:
 	PbrShader();
 
 
-	//void SetAmbientColor();
-	//void SetDiffuseColor();
+	void SetDiffuseMap(GLuint texId);
+	void SetNormalMap(GLuint texId);
+	void SetSpecularMap(GLuint texId);
+
+	void SetEmissiveMap(GLuint texId);
 
 private:
 

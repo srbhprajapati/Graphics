@@ -94,11 +94,11 @@ void SceneGraph::AddMeshComponent(Entity& node, const MeshNode* sNode)
 {
 	auto& meshComponent = node.AddComponent<MeshComponent>();
 
-	meshComponent.indices = sNode->indices;
-	meshComponent.materialIndex = sNode->materialIndex;
-	meshComponent.normals = sNode->normals;
-	meshComponent.uvs = sNode->uvs;
-	meshComponent.vertices = sNode->vertices;
+	//meshComponent.indices = sNode->indices;
+	//meshComponent.materialIndex = sNode->materialIndex;
+	//meshComponent.normals = sNode->normals;
+	//meshComponent.uvs = sNode->uvs;
+	//meshComponent.vertices = sNode->vertices;
 }
 
 void SceneGraph::AddCameraComponent(Entity& node, const CameraNode* sNode)

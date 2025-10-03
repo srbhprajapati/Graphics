@@ -17,6 +17,8 @@ set(SOURCE_FILES	src/main.cpp
 				    src/Engine/Core/Entity.h
 				    src/Engine/Core/Entity.cpp
 					src/Engine/Core/Components.h
+					src/Resources/Mesh.h
+					src/Resources/Mesh.cpp
 					src/Resources/Material.h
 					src/Resources/Material.cpp
 					src/Resources/PbrShader.h
@@ -46,7 +48,9 @@ source_group("Engine/Core" FILES	src/Engine/Core/SceneGraph.h
 									src/Engine/Core/Components.h)
 
 
-source_group("Resources" FILES		src/Resources/Material.h
+source_group("Resources" FILES		src/Resources/Mesh.h
+									src/Resources/Mesh.cpp
+									src/Resources/Material.h
 									src/Resources/Material.cpp
 									src/Resources/Shader.h
 									src/Resources/Shader.cpp

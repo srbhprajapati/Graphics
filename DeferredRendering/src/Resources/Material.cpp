@@ -16,6 +16,7 @@ Material::Material(MaterialData& mData)
 
 	diffuseTexture  = std::make_unique<Texture>(mData.DiffuseTexture);
 	specularTexture = std::make_unique<Texture>(mData.SpecularTexture);
+	normalTexture = std::make_unique<Texture>(mData.NormalMapTexture);
 	emissiveTexture = std::make_unique<Texture>(mData.EmissiveTexture);
 
 	shader = std::make_unique<PbrShader>();
@@ -23,7 +24,10 @@ Material::Material(MaterialData& mData)
 
 void Material::InitMaterial()
 {
-
+	shader->SetDiffuseMap(diffuseTexture->GetTextureId());
+	shader->SetSpecularMap(specularTexture->GetTextureId());
+	shader->SetNormalMap(normalTexture->GetTextureId());
+	shader->SetEmissiveMap(emissiveTexture->GetTextureId());
 }
 
 
