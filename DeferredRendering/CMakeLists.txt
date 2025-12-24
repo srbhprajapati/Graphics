@@ -12,8 +12,10 @@ set(SOURCE_FILES	src/main.cpp
 					src/AssetLoader/FBXLoader.cpp
 					src/Common/SceneData.h
 					src/Common/SceneData.cpp
-					src/Engine/Core/SceneGraph.h
-					src/Engine/Core/SceneGraph.cpp
+					src/Engine/Engine.h
+					src/Engine/Engine.cpp
+					src/Engine/Core/Scene.h
+					src/Engine/Core/Scene.cpp
 				    src/Engine/Core/Entity.h
 				    src/Engine/Core/Entity.cpp
 					src/Engine/Core/Components.h
@@ -41,8 +43,12 @@ source_group("Common" FILES	src/Common/SceneData.h
 							src/Common/SceneData.cpp)
 
 
-source_group("Engine/Core" FILES	src/Engine/Core/SceneGraph.h
-									src/Engine/Core/SceneGraph.cpp
+source_group("Engine" FILES	src/Engine/Engine.h
+							src/Engine/Engine.cpp)
+
+
+source_group("Engine/Core" FILES	src/Engine/Core/Scene.h
+									src/Engine/Core/Scene.cpp
 									src/Engine/Core/Entity.h
 									src/Engine/Core/Entity.cpp
 									src/Engine/Core/Components.h)

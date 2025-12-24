@@ -1,14 +1,16 @@
 #pragma once
 
+
+#include "Resources/ResourceManager.h"
 #include "entt.hpp"
 #include "Entity.h"
 #include "Common/SceneData.h"
 
 
-class SceneGraph {
+class Scene {
 
 public:
-	SceneGraph(SceneData& sData);
+	Scene(ResourceManager& manager, SceneData& sData);
 
 
 	void Initialize(SceneData& sData);
@@ -28,4 +30,6 @@ private:
 	void AddMeshComponent(Entity& node, const MeshNode* sNode);
 	void AddCameraComponent(Entity& node, const CameraNode* sNode);
 	void AddLightComponent(Entity& node, const LightNode* sNode);
+
+	ResourceManager& resourceManager;
 };

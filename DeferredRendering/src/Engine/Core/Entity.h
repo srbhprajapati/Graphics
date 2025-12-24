@@ -2,12 +2,12 @@
 
 #include "entt.hpp"
 
-class SceneGraph;
+class Scene;
 
 class Entity
 {
 public :
-	Entity(entt::entity id, SceneGraph* scene);
+	Entity(entt::entity id, Scene* scene);
 
 	entt::entity GetID() { return id; }
 
@@ -41,5 +41,5 @@ public :
 private:
 
 	entt::entity id;
-	SceneGraph* scene;
+	Scene* scene;
 };

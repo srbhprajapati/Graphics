@@ -1,36 +1,36 @@
-#include "SceneGraph.h"
+#include "Scene.h"
 #include "Entity.h"
 #include "Components.h"
 
-SceneGraph::SceneGraph(SceneData& sData)
+Scene::Scene(ResourceManager& manager, SceneData& sData) : resourceManager(manager)
 {
 	Initialize(sData);
 }
 
-void SceneGraph::Initialize(SceneData& sData)
+void Scene::Initialize(SceneData& sData)
 {
 	ParseSceneNode(sData.rootNode, Entity(entt::null, this));
 }
 
 
-Entity SceneGraph::CreateEntity()
+Entity Scene::CreateEntity()
 {
 	auto eid = SceneRegistry.create();
 	return Entity(eid, this);
 }
 
 
-Entity SceneGraph::GetEntity(entt::entity e)
+Entity Scene::GetEntity(entt::entity e)
 {
 	return Entity(e, this);
 }
 
-void SceneGraph::DeleteEntity(Entity e)
+void Scene::DeleteEntity(Entity e)
 {
 	SceneRegistry.destroy(e.GetID());
 }
 
-Entity SceneGraph::ParseSceneNode(std::unique_ptr<SceneNode>& node, Entity& parent)
+Entity Scene::ParseSceneNode(std::unique_ptr<SceneNode>& node, Entity& parent)
 {
 	Entity nodeEntity = CreateEntity();
 	
@@ -90,9 +90,13 @@ Entity SceneGraph::ParseSceneNode(std::unique_ptr<SceneNode>& node, Entity& pare
 	return nodeEntity;
 }
 
-void SceneGraph::AddMeshComponent(Entity& node, const MeshNode* sNode)
+void Scene::AddMeshComponent(Entity& node, const MeshNode* sNode)
 {
+	MeshHandle mesh = resourceManager.CreateMesh(sNode->vertices, sNode->normals, sNode->uvs, sNode->indices);
+
 	auto& meshComponent = node.AddComponent<MeshComponent>();
+
+	meshComponent.mesh = mesh;
 
 	//meshComponent.indices = sNode->indices;
 	//meshComponent.materialIndex = sNode->materialIndex;
@@ -101,17 +105,15 @@ void SceneGraph::AddMeshComponent(Entity& node, const MeshNode* sNode)
 	//meshComponent.vertices = sNode->vertices;
 }
 
-void SceneGraph::AddCameraComponent(Entity& node, const CameraNode* sNode)
+void Scene::AddCameraComponent(Entity& node, const CameraNode* sNode)
 {
 	auto& cameraComponent = node.AddComponent<CameraComponent>();
-
 	cameraComponent.cameraIndex = sNode->cameraIndex;
 }
 
-void SceneGraph::AddLightComponent(Entity& node, const LightNode* sNode)
+void Scene::AddLightComponent(Entity& node, const LightNode* sNode)
 {
 	auto& lightComponent = node.AddComponent<LightComponent>();
-
 	lightComponent.lightIndex = sNode->lightIndex;
 }
 

@@ -1,8 +1,9 @@
 #pragma once
 
+
+#include <glad/glad.h>
 #include "Common/SceneData.h"
 #include <vector>
-#include <glad/glad.h>
 
 
 class Mesh {

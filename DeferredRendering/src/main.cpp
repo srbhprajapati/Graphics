@@ -1,22 +1,16 @@
 #include <iostream>
-#include <GLFW/glfw3.h>
-
-
 
 #include "AssetLoader/FBXLoader.h"
 #include "Common/SceneData.h"
-#include "Engine/Core/SceneGraph.h"
+#include "Engine/Core/Scene.h"
+#include "Engine/Engine.h"
+
+#include <GLFW/glfw3.h>
 
 
 int main(int argc, char** argv)
 {
-
-	std::string fbxDatasetPath = "C:/Users/srbhp/Documents/Data/Bistro_v5_2/BistroInterior_Wine.fbx";
-
-	SceneData sceneData;
-	FBXLoader::LoadFBXFile(fbxDatasetPath, &sceneData);
-
-	SceneGraph sceneGraph(sceneData);
+	std::unique_ptr<Engine> engine = std::make_unique<Engine>();
 
 
 	return 0;

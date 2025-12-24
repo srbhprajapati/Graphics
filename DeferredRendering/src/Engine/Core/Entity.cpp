@@ -1,7 +1,7 @@
 #include "Entity.h"
-#include "SceneGraph.h"
+#include "Scene.h"
 
-Entity::Entity(entt::entity id, SceneGraph* scene) : id(id), scene(scene)
+Entity::Entity(entt::entity id, Scene* scene) : id(id), scene(scene)
 {
 }
 

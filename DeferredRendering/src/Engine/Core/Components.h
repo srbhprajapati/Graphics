@@ -2,7 +2,6 @@
 
 #include "entt.hpp"
 #include <windows.h>
-#include <gl/GL.h>
 #include <glm.hpp>
 
 struct RelationshipComponent {
@@ -23,8 +22,7 @@ struct TransformComponent
 
 struct MeshComponent
 {
-
-
+	MeshHandle mesh;
 	unsigned int materialIndex;
 };
 
