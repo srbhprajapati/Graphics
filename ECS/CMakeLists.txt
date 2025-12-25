@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.25)
 
 # Main Project related declaration
-project(DeferredRendering)
+project(ECS)
 set(CMAKE_CXX_STANDARD 17)
 
 
@@ -31,8 +31,14 @@ set(SOURCE_FILES	src/main.cpp
 					src/Resources/Texture.cpp
 					src/Resources/ResourceManager.h
 					src/Resources/ResourceManager.cpp
+					src/Window/Window.h
+					src/Window/Window.cpp
+					src/Window/GLFWWindow.h
+					src/Window/GLFWWindow.cpp
 					ThirdParty/glad/include/glad/glad.h
 					ThirdParty/glad/src/glad.c)
+
+
 	
 
 source_group("AssetLoader" FILES	src/AssetLoader/FBXLoader.h
@@ -68,6 +74,12 @@ source_group("Resources" FILES		src/Resources/Mesh.h
 									src/Resources/ResourceManager.cpp)
 
 
+
+source_group("Window" FILES			src/Window/Window.h
+									src/Window/Window.cpp
+									src/Window/GLFWWindow.h
+									src/Window/GLFWWindow.cpp)
+
 source_group("ThirdParty/glad" FILES	ThirdParty/glad/include/glad/glad.h
 										ThirdParty/glad/src/glad.c)
 
@@ -75,7 +87,7 @@ source_group("ThirdParty/glad" FILES	ThirdParty/glad/include/glad/glad.h
 
 
 # Main Executable
-add_executable(DeferredRendering ${SOURCE_FILES})
+add_executable(ECS ${SOURCE_FILES})
 
 
 
@@ -117,12 +129,12 @@ set_target_properties(GLM PROPERTIES
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #Include Directories
-target_include_directories(DeferredRendering PRIVATE $(CMAKE_CURRENT_SOURCE_DIR)/src
+target_include_directories(ECS PRIVATE $(CMAKE_CURRENT_SOURCE_DIR)/src
 													$(CMAKE_CURRENT_SOURCE_DIR)/ThirdParty/glad/include)
 
 
 
-target_link_libraries(DeferredRendering PRIVATE GLFW
+target_link_libraries(ECS PRIVATE GLFW
 												FbxSdk
 												Entt
 												GLM)
@@ -130,9 +142,9 @@ target_link_libraries(DeferredRendering PRIVATE GLFW
 
 if(WIN32)
 
-add_custom_command(TARGET DeferredRendering POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:FbxSdk> $<TARGET_FILE_DIR:DeferredRendering>
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GLFW> $<TARGET_FILE_DIR:DeferredRendering>
-    COMMENT "Copying runtime DLLs for DeferredRendering"
+add_custom_command(TARGET ECS POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:FbxSdk> $<TARGET_FILE_DIR:ECS>
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GLFW> $<TARGET_FILE_DIR:ECS>
+    COMMENT "Copying runtime DLLs for ECS"
 )
 endif()

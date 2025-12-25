@@ -13,8 +13,8 @@ LayeredDepthImageImplementation/Debug
 LayeredDepthImageImplementation/LayeredDepthImageImplementation/Debug
 LayeredDepthImageImplementation/LayeredDepthImageImplementation/x64
 LayeredDepthImageImplementation/x64
-DeferredRendering/build
-DeferredRendering/ThirdParty
+ECS/build
+ECS/ThirdParty
 
 
 .vs/
