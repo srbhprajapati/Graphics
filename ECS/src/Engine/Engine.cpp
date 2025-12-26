@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "AssetLoader/FBXLoader.h"
+#include "Window/GLFWWindow.h"
 
 Engine::Engine()
 {
@@ -8,8 +9,9 @@ Engine::Engine()
 	SceneData sceneData;
 	FBXLoader::LoadFBXFile(fbxDatasetPath, &sceneData);
 
+	window = std::make_unique<GLFWWindow>(800, 800, "ECS Window");
 	resourceManager = std::make_unique<ResourceManager>();
-	scene = std::make_unique<Scene>(*resourceManager, sceneData);
+	scene = std::make_unique<SceneRegistry>(*resourceManager, sceneData);
 
 }
 
@@ -18,3 +20,14 @@ Engine::~Engine()
 }
 
 
+void Engine::Run()
+{
+	while (!window->ShouldClose())
+	{
+		window->PollEvents();
+
+
+
+		window->SwapBuffers();
+	}
+}

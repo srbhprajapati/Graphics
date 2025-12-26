@@ -7,10 +7,10 @@
 #include "Common/SceneData.h"
 
 
-class Scene {
+class SceneRegistry {
 
 public:
-	Scene(ResourceManager& manager, SceneData& sData);
+	SceneRegistry(ResourceManager& manager, SceneData& sData);
 
 
 	void Initialize(SceneData& sData);
@@ -19,9 +19,7 @@ public:
 	Entity GetEntity(entt::entity e);
 	void DeleteEntity(Entity e);
 
-
-
-	entt::registry SceneRegistry;
+	entt::registry Registry;
 
 private:
 	

@@ -2,12 +2,12 @@
 
 #include "entt.hpp"
 
-class Scene;
+class SceneRegistry;
 
 class Entity
 {
 public :
-	Entity(entt::entity id, Scene* scene);
+	Entity(entt::entity id, SceneRegistry* scene);
 
 	entt::entity GetID() { return id; }
 
@@ -15,25 +15,25 @@ public :
 	template<typename T, typename... Args>
 	T& AddComponent(Args&&... args)
 	{
-		return scene->SceneRegistry.emplace<T>(id, std::forward<Args>(args)...);
+		return scene->Registry.emplace<T>(id, std::forward<Args>(args)...);
 	}
 
 	template<typename T>
 	void RemoveComponent()
 	{
-		scene->SceneRegistry.remove<T>(id);
+		scene->Registry.remove<T>(id);
 	}
 
 	template<typename T>
 	bool HasComponent()
 	{
-		return scene->SceneRegistry.all_of<T>(id);
+		return scene->Registry.all_of<T>(id);
 	}
 
 	template<typename T>
 	T& GetComponent()
 	{
-		return scene->SceneRegistry.get<T>(id);
+		return scene->Registry.get<T>(id);
 	}
 
 
@@ -41,5 +41,5 @@ public :
 private:
 
 	entt::entity id;
-	Scene* scene;
+	SceneRegistry* scene;
 };

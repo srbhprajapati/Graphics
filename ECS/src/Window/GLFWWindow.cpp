@@ -13,8 +13,8 @@ GLFWWindow::GLFWWindow(int width, int height, const std::string& title)
 	}
 
 	glfwSetErrorCallback(errorCallback);
+	
 
-	gladLoadGL();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -25,13 +25,18 @@ GLFWWindow::GLFWWindow(int width, int height, const std::string& title)
 		return;
 	}
 
-
+	glfwMakeContextCurrent(window);
+	gladLoadGL();
+	glfwSwapInterval(1);
 }
 
 GLFWWindow::~GLFWWindow()
 {
-	glfwDestroyWindow(window);
-	glfwTerminate();
+	if (isInitialized)
+	{
+		glfwDestroyWindow(window);
+		glfwTerminate();
+	}
 }
 
 void GLFWWindow::PollEvents()

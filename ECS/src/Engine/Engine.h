@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Resources/ResourceManager.h"
-#include "Core/Scene.h"
+#include "ECS/SceneRegistry.h"
+#include "Window/Window.h"
 
 class Engine
 {
@@ -10,8 +11,11 @@ public:
 	Engine();
 	~Engine();
 
+	void Run();
+
 private:
 
 	std::unique_ptr<ResourceManager> resourceManager;
-	std::unique_ptr<Scene> scene;
+	std::unique_ptr<SceneRegistry> scene;
+	std::unique_ptr<Window> window;
 };

@@ -2,7 +2,7 @@
 
 #include "AssetLoader/FBXLoader.h"
 #include "Common/SceneData.h"
-#include "Engine/Core/Scene.h"
+#include "ECS/SceneRegistry.h"
 #include "Engine/Engine.h"
 
 

@@ -14,11 +14,11 @@ set(SOURCE_FILES	src/main.cpp
 					src/Common/SceneData.cpp
 					src/Engine/Engine.h
 					src/Engine/Engine.cpp
-					src/Engine/Core/Scene.h
-					src/Engine/Core/Scene.cpp
-				    src/Engine/Core/Entity.h
-				    src/Engine/Core/Entity.cpp
-					src/Engine/Core/Components.h
+					src/ECS/SceneRegistry.h
+					src/ECS/SceneRegistry.cpp
+				    src/ECS/Entity.h
+				    src/ECS/Entity.cpp
+					src/ECS/Components.h
 					src/Resources/Mesh.h
 					src/Resources/Mesh.cpp
 					src/Resources/Material.h
@@ -53,11 +53,11 @@ source_group("Engine" FILES	src/Engine/Engine.h
 							src/Engine/Engine.cpp)
 
 
-source_group("Engine/Core" FILES	src/Engine/Core/Scene.h
-									src/Engine/Core/Scene.cpp
-									src/Engine/Core/Entity.h
-									src/Engine/Core/Entity.cpp
-									src/Engine/Core/Components.h)
+source_group("ECS" FILES	src/ECS/SceneRegistry.h
+							src/ECS/SceneRegistry.cpp
+							src/ECS/Entity.h
+							src/ECS/Entity.cpp
+							src/ECS/Components.h)
 
 
 source_group("Resources" FILES		src/Resources/Mesh.h
