@@ -46,7 +46,7 @@ void GLFWWindow::PollEvents()
 
 void GLFWWindow::SwapBuffers()
 {
-
+	glfwSwapBuffers(window);
 }
 
 int  GLFWWindow::GetWidth() const

@@ -17,6 +17,10 @@ public:
 
 	MeshHandle CreateMesh(std::vector<Vertex> vert, std::vector<Normal> norm, std::vector<UV> uv, std::vector<unsigned int> ind);
 
+	Mesh* GetMesh(MeshHandle handle)
+	{
+		return meshes[handle].get();
+	}
 
 private:
 

@@ -13,6 +13,9 @@ public:
 	Mesh(std::vector<Vertex> vert, std::vector<Normal> norm, std::vector<UV> uv, std::vector<unsigned int> ind);
 	~Mesh();
 
+	GLuint	GetVAO() { return vao; }
+	unsigned int GetIndexCount() { return indices.size(); }
+
 private:
 
 	void InitMesh();

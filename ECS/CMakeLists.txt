@@ -31,6 +31,11 @@ set(SOURCE_FILES	src/main.cpp
 					src/Resources/Texture.cpp
 					src/Resources/ResourceManager.h
 					src/Resources/ResourceManager.cpp
+					src/Systems/System.h
+					src/Systems/RenderSystem.h
+					src/Systems/RenderSystem.cpp
+					src/Systems/SystemManager.h
+					src/Systems/SystemManager.cpp
 					src/Window/Window.h
 					src/Window/Window.cpp
 					src/Window/GLFWWindow.h
@@ -73,7 +78,11 @@ source_group("Resources" FILES		src/Resources/Mesh.h
 									src/Resources/ResourceManager.h
 									src/Resources/ResourceManager.cpp)
 
-
+source_group("Systems" FILES	src/Systems/System.h
+								src/Systems/RenderSystem.h
+								src/Systems/RenderSystem.cpp
+								src/Systems/SystemManager.h
+								src/Systems/SystemManager.cpp)
 
 source_group("Window" FILES			src/Window/Window.h
 									src/Window/Window.cpp

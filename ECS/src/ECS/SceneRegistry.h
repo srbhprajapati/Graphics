@@ -6,7 +6,6 @@
 #include "Entity.h"
 #include "Common/SceneData.h"
 
-
 class SceneRegistry {
 
 public:
