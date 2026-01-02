@@ -20,8 +20,21 @@ public:
 		return ref;
 	}
 
+	template<typename T>
+	T& GetSystem()
+	{
+		for (auto& system : systems)
+		{
+			if (auto ptr = dynamic_cast<T*>(system.get()))
+			{
+				return *ptr;
+			}
 
-	void UpdateAll(float deltaTime);
+		}
+
+		assert(false && "Requested system not found");
+		std::terminate();
+	}
 
 private:
 

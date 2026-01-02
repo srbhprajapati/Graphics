@@ -3,6 +3,8 @@
 #include "entt.hpp"
 #include <windows.h>
 #include <glm.hpp>
+#include <gtc/quaternion.hpp>
+
 
 struct RelationshipComponent {
 
@@ -16,7 +18,12 @@ struct RelationshipComponent {
 
 struct TransformComponent
 {
-	glm::mat4 matrix;
+	glm::vec3 position;
+	glm::fquat rotation;
+	glm::vec3 scale;
+
+	glm::mat4 local;
+	glm::mat4 world;
 };
 
 
@@ -29,6 +36,7 @@ struct MeshComponent
 struct CameraComponent
 {
 	unsigned int cameraIndex;
+	glm::mat4 projectionMatrix;
 };
 
 struct LightComponent

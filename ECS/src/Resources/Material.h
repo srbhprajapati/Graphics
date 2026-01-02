@@ -11,9 +11,13 @@ public:
 	
 	Material(MaterialData& mData);
 
+	const Shader* GetShader() const { return shader.get(); }
+
 private:
 
 	void InitMaterial();
+
+	uint32_t id;
 
 	std::string name;
 

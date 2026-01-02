@@ -14,13 +14,13 @@ void Texture::Initiaize(std::string path)
 {
 	std::filesystem::path p(path);
 
-	if (p.extension().string() == "dds")
+	if (p.extension().string() == ".dds")
 	{
 		CreateGLTextureFromDDS(path);
 	}
 	else
 	{
-		std::cerr << "File Format Not Supported" << std::endl;
+		std::cerr << "File Format Not Supported. File Path : " << path << std::endl;
 	}
 }
 
@@ -80,6 +80,9 @@ GLuint Texture::CreateGLTextureFromDDS(std::string texPath)
 			break;
 		case 0x35545844: // "DXT5"
 			format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			break;
+		case 0x32495441:
+			format = GL_COMPRESSED_RG_RGTC2;
 			break;
 		default:
 			std::cerr << "Unsupported DDS format in " << texPath << std::endl;

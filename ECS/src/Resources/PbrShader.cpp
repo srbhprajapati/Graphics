@@ -6,7 +6,7 @@ std::string PBRVertexShader = R"(
 
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec3 normal;
-layout (location = 2) in vec3 texCoord;
+layout (location = 2) in vec2 texCoord;
 
 
 out VS_OUT
@@ -17,19 +17,20 @@ out VS_OUT
 }vs_out;
 
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 viewProjection;
 
 
 void main()
 {
 	vs_out.fragPos = vec3(model * vec4(pos, 1.0f));
-	vs_out.normal = mat3(transpose(inverse(model)) * normal;
+	vs_out.normal = mat3(transpose(inverse(model))) * normal;
 	vs_out.texCoord = texCoord;
 
-	gl_Position = projection * view * model * vec4(pos, 1.0f);
+	gl_Position = viewProjection * vec4(pos, 1.0f);
 }
 )";
+
+
 
 
 std::string PBRFragmentShader = R"(
@@ -164,7 +165,8 @@ void main() {
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0 / 2.2));
 
-    FragColor = vec4(color, 1.0);
+    //FragColor = vec4(color, 1.0);
+    FragColor = vec4(N, 1.0);
 }
 
 )";

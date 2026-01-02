@@ -62,12 +62,12 @@ void Shader::Compile(std::string vertexShaderSource, std::string fragmentShaderS
 	glDeleteShader(fShader);
 }
 
-void Shader::Bind()
+void Shader::Bind() const 
 {
 	glUseProgram(shaderId);
 }
 
-void Shader::UnBind()
+void Shader::UnBind() const
 {
 	glUseProgram(0);
 }
@@ -92,7 +92,7 @@ void Shader::SetUniformVec3(const std::string& name, glm::vec3& value) const
 	glUniform3fv(glGetUniformLocation(shaderId, name.c_str()), 1, &value[0]);
 }
 
-void Shader::SetUniformMat4(const std::string& name, glm::mat4& value) const
+void Shader::SetUniformMat4(const std::string& name, const glm::mat4& value) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(shaderId, name.c_str()), 1, GL_FALSE, &value[0][0]);
 }

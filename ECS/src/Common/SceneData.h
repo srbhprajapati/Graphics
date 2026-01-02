@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <glm.hpp>
+#include <gtc/quaternion.hpp>
 
 struct Color {
 	float r;
@@ -30,7 +31,12 @@ struct UV {
 };
 
 struct Transform {
-	glm::mat4 matrix;
+	glm::vec3 position;
+	glm::fquat rotation;
+	glm::vec3 scale;
+
+	glm::mat4 local;
+	glm::mat4 world;
 };
 
 struct SceneNode
@@ -40,9 +46,8 @@ struct SceneNode
 	std::vector<std::unique_ptr<SceneNode>> children;
 	std::string nodeType;
 
-	Transform localTransform;
-	Transform globalTransform;
-
+	Transform transform;
+	
 	virtual ~SceneNode() = default;
 };
 
@@ -53,8 +58,7 @@ struct MeshNode : public SceneNode {
 	std::vector<UV> uvs;
 	std::vector<unsigned int> indices;
 
-
-	unsigned int materialIndex;
+	uint32_t materialIndex;
 };
 
 
@@ -64,11 +68,14 @@ struct LightNode : public SceneNode {
 
 struct CameraNode : public SceneNode {
 	unsigned int cameraIndex;
+	glm::mat4 projectionMatrix;
 };
 
 
 
 struct MaterialData {
+
+	uint32_t ID;
 
 	std::string Name;
 	std::string ShadingModel;
@@ -108,7 +115,7 @@ struct MaterialData {
 struct SceneData
 {	
 	std::unique_ptr<SceneNode> rootNode;
-	std::map<std::string, MaterialData> Materials;
+	std::vector<MaterialData> Materials;
 
 	unsigned int latestNodeIndex = 0;
 };

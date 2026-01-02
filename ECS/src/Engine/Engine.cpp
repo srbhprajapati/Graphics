@@ -4,7 +4,7 @@
 #include "Systems/RenderSystem.h"
 #include <chrono>
 
-using clock = std::chrono::steady_clock;
+using stclock = std::chrono::steady_clock;
 
 Engine::Engine()
 {
@@ -29,17 +29,29 @@ Engine::~Engine()
 
 void Engine::Run()
 {
-	auto lastTime = clock::now();
+	auto lastTime = stclock::now();
 	while (!window->ShouldClose())
 	{
-		auto now = clock::now();
+		auto now = stclock::now();
 		float deltaTime = std::chrono::duration<float, std::milli>(now - lastTime).count();
 		lastTime = now;
 
 		window->PollEvents();
 
-		//scene->Update();
-		systemManager->UpdateAll(deltaTime);
+
+
+		//Update Input System Here
+
+		//Update Physics System here
+
+
+
+
+		//Rendering
+		systemManager->GetSystem<RenderSystem>().BeginFrame();
+		systemManager->GetSystem<RenderSystem>().Update(deltaTime);
+		systemManager->GetSystem<RenderSystem>().EndFrame();
+
 
 
 		window->SwapBuffers();

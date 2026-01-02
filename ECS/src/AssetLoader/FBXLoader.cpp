@@ -21,9 +21,26 @@ void FBXLoader::LoadFBXFile(std::string filePath, SceneData* scene)
 
 	FbxScene* fbxScene = FbxScene::Create(sdkManager, "DefaultScene");
 	importer->Import(fbxScene);
+	FbxSystemUnit::m.ConvertScene(fbxScene);
 
-	ParseScene(fbxScene, scene);
-	ParseMaterials(fbxScene, scene);
+
+	FbxSystemUnit systemUnit = fbxScene->GetGlobalSettings().GetSystemUnit();
+	double scaleFactor = systemUnit.GetScaleFactor();
+	FbxString unitName = systemUnit.GetScaleFactorAsString();
+
+	FbxAxisSystem sceneAxis = fbxScene->GetGlobalSettings().GetAxisSystem();
+	if (sceneAxis != FbxAxisSystem::OpenGL)
+	{
+		FbxAxisSystem::OpenGL.ConvertScene(fbxScene);
+	}
+
+
+
+	std::unordered_map<FbxSurfaceMaterial*, uint32_t> fbxToSceneMaterialMap;
+	uint32_t materialIndex = 0;
+
+	ParseMaterials(fbxScene, scene, fbxToSceneMaterialMap, materialIndex);
+	ParseScene(fbxScene, scene, fbxToSceneMaterialMap);
 
 	fbxScene->Destroy();
 	importer->Destroy();
@@ -32,7 +49,7 @@ void FBXLoader::LoadFBXFile(std::string filePath, SceneData* scene)
 }
 
 
-void FBXLoader::ParseScene(FbxScene* fbxScene, SceneData* scene)
+void FBXLoader::ParseScene(FbxScene* fbxScene, SceneData* scene, std::unordered_map<FbxSurfaceMaterial*, uint32_t>& map)
 {
 	FbxNode* rootNode = fbxScene->GetRootNode();
 
@@ -47,13 +64,13 @@ void FBXLoader::ParseScene(FbxScene* fbxScene, SceneData* scene)
 		for (int i = 0; i < rootNode->GetChildCount(); i++)
 		{
 			FbxNode* childNode = rootNode->GetChild(i);
-			ParseNode(childNode, scene, 1, scene->rootNode.get());
+			ParseNode(childNode, scene, 1, scene->rootNode.get(), map);
 		}
 	}
 }
 
 
-void FBXLoader::ParseNode(FbxNode* fbxNode, SceneData* scene, int nodeLevel, SceneNode* parent)
+void FBXLoader::ParseNode(FbxNode* fbxNode, SceneData* scene, int nodeLevel, SceneNode* parent, std::unordered_map<FbxSurfaceMaterial*, uint32_t>& map)
 {
 	SceneNode* node = nullptr;
 
@@ -63,7 +80,7 @@ void FBXLoader::ParseNode(FbxNode* fbxNode, SceneData* scene, int nodeLevel, Sce
 	if (attr) {
 		switch (attr->GetAttributeType()) {
 		case FbxNodeAttribute::eMesh:
-			node = ParseMesh(fbxNode, parent);
+			node = ParseMesh(fbxNode, parent, map);
 			
 			break;
 		case FbxNodeAttribute::eLight:
@@ -71,7 +88,7 @@ void FBXLoader::ParseNode(FbxNode* fbxNode, SceneData* scene, int nodeLevel, Sce
 			node->nodeType = "Light";
 			break; 
 		case FbxNodeAttribute::eCamera:
-			node = ParseLight(fbxNode, parent);
+			node = ParseCamera(fbxNode, parent);
 			node->nodeType = "Camera";
 			break;
 		default:
@@ -89,12 +106,12 @@ void FBXLoader::ParseNode(FbxNode* fbxNode, SceneData* scene, int nodeLevel, Sce
 	for (int i = 0; i < fbxNode->GetChildCount(); i++)
 	{
 		FbxNode* childNode = fbxNode->GetChild(i);
-		ParseNode(childNode, scene, newNodeLevel, node);
+		ParseNode(childNode, scene, newNodeLevel, node, map);
 	}
 }
 
 
-void FBXLoader::ParseMaterials(FbxScene* fbxScene, SceneData* scene)
+void FBXLoader::ParseMaterials(FbxScene* fbxScene, SceneData* scene, std::unordered_map<FbxSurfaceMaterial*, uint32_t>& map, uint32_t& materialIndex)
 {
 	int materialCount = fbxScene->GetSrcObjectCount<FbxSurfaceMaterial>();
 	for (int i = 0; i < materialCount; ++i)
@@ -165,7 +182,19 @@ void FBXLoader::ParseMaterials(FbxScene* fbxScene, SceneData* scene)
 		GetProperty(material, FbxSurfaceMaterial::sVectorDisplacementFactor, sceneMaterial.VectorDisplacementFactor);
 
 
-		scene->Materials.emplace(sceneMaterial.Name, (std::move(sceneMaterial)));
+		//ID
+		auto it = map.find(material);
+		if ( it != map.end())
+		{
+			sceneMaterial.ID = it->second;
+		}
+		else
+		{
+			sceneMaterial.ID = materialIndex++;
+			map.insert(std::make_pair(material, sceneMaterial.ID));
+			scene->Materials.push_back(std::move(sceneMaterial));
+		}
+		
 	}
 }
 
@@ -212,18 +241,65 @@ void FBXLoader::GetProperty(FbxSurfaceMaterial* material, const char* propertyNa
 		if (textureCount > 0)
 		{
 			FbxFileTexture* texture = prop.GetSrcObject<FbxFileTexture>(0);
-			path = texture->GetRelativeFileName();
+			path = texture->GetFileName();
 		}
 	}
 }
 
 
-SceneNode* FBXLoader::ParseMesh(FbxNode* node, SceneNode* parent)
+SceneNode* FBXLoader::ParseMesh(FbxNode* node, SceneNode* parent, std::unordered_map<FbxSurfaceMaterial*, uint32_t>& map)
 {
 	auto mesh = std::make_unique<MeshNode>();
 	mesh->nodeType = "Mesh";
 
+	//Transform
+	FbxDouble3 t = node->LclTranslation.Get();
+	FbxDouble3 s = node->LclScaling.Get();
+	FbxAMatrix local = node->EvaluateLocalTransform();
+	FbxAMatrix world = node->EvaluateGlobalTransform();
+	FbxAMatrix r = node->EvaluateLocalTransform();
+	r.SetT(FbxVector4(0, 0, 0));
+
+	FbxAMatrix geo;
+	geo.SetIdentity();
+	geo.SetT(node->GetGeometricTranslation(FbxNode::eSourcePivot));
+	geo.SetR(node->GetGeometricRotation(FbxNode::eSourcePivot));
+	geo.SetS(node->GetGeometricScaling(FbxNode::eSourcePivot));
+
+	mesh->transform.position = glm::vec3(t[0], t[1], t[2]);
+	mesh->transform.rotation = glm::quat_cast(ConvertFbxToGLM(r));
+	mesh->transform.scale = glm::vec3(s[0], s[1], s[2]);
+	mesh->transform.local = ConvertFbxToGLM(local);
+	mesh->transform.world = ConvertFbxToGLM(world);
+
+
+
+	//Mesh
 	FbxMesh* fbxMesh = node->GetMesh();
+
+	FbxGeometryElementMaterial* materialElement = fbxMesh->GetElementMaterial();
+	FbxGeometryElement::EMappingMode mappingMode = materialElement->GetMappingMode();
+	int materialIndex = materialElement->GetIndexArray().GetAt(0);
+	FbxSurfaceMaterial* fbxMat = node->GetMaterial(materialIndex);
+
+	mesh->materialIndex = map[fbxMat];
+
+	//std::cout << "Material Index : " << materialIndex << " And Material Name : " << fbxMat->GetName() << std::endl;
+	//if (mappingMode == FbxGeometryElement::EMappingMode::eAllSame)
+	//{
+	//	std::cout << "Single Material   -> "; 
+	//}
+	//else if (mappingMode == FbxGeometryElement::EMappingMode::eByPolygon)
+	//{
+	//	std::cout << "Per Polygon Material    -> ";
+	//}
+	//else
+	//{
+	//	std::cout << "Other Material Mode" << std::endl;
+	//}
+
+
+
 
 	int polygonCount = fbxMesh->GetPolygonCount();
 	unsigned int vertexOffset = 0;
@@ -237,10 +313,8 @@ SceneNode* FBXLoader::ParseMesh(FbxNode* node, SceneNode* parent)
 		{
 			for (int vert = 0; vert < polySize; ++vert) {
 				int cpIndex = fbxMesh->GetPolygonVertex(poly, vert);
-
-
 				
-				FbxVector4 position = fbxMesh->GetControlPointAt(cpIndex);
+				FbxVector4 position = world.MultT(geo.MultT(fbxMesh->GetControlPointAt(cpIndex)));
 				FbxVector4 normal = GetNormal(fbxMesh, poly, vert);
 				FbxVector2 uv = GetUV(fbxMesh, poly, vert);
 
@@ -258,7 +332,7 @@ SceneNode* FBXLoader::ParseMesh(FbxNode* node, SceneNode* parent)
 				int vert = vertArray[i];
 				int cpIndex = fbxMesh->GetPolygonVertex(poly, vert);
 
-				FbxVector4 position = fbxMesh->GetControlPointAt(cpIndex);
+				FbxVector4 position = world.MultT(geo.MultT(fbxMesh->GetControlPointAt(cpIndex)));
 				FbxVector4 normal = GetNormal(fbxMesh, poly, vert);
 				FbxVector2 uv = GetUV(fbxMesh, poly, vert);
 
@@ -290,6 +364,69 @@ SceneNode* FBXLoader::ParseCamera(FbxNode* node, SceneNode* parent)
 {
 	auto camera = std::make_unique<CameraNode>();
 	camera->nodeType = "Camera";
+
+	FbxCamera* cam = node->GetCamera();
+	
+	//Transform
+	FbxDouble3 t = node->LclTranslation.Get();
+	FbxDouble3 s = node->LclScaling.Get();
+	FbxAMatrix local = node->EvaluateLocalTransform();
+	FbxAMatrix world = node->EvaluateGlobalTransform();
+	FbxAMatrix r = node->EvaluateLocalTransform();
+	r.SetT(FbxVector4(0, 0, 0));
+
+	FbxAMatrix geo;
+	geo.SetIdentity();
+	geo.SetT(node->GetGeometricTranslation(FbxNode::eSourcePivot));
+	geo.SetR(node->GetGeometricRotation(FbxNode::eSourcePivot));
+	geo.SetS(node->GetGeometricScaling(FbxNode::eSourcePivot));
+
+	camera->transform.position = glm::vec3(t[0], t[1], t[2]);
+	camera->transform.rotation = glm::quat_cast(ConvertFbxToGLM(r));
+	camera->transform.scale = glm::vec3(s[0], s[1], s[2]);
+	camera->transform.local = ConvertFbxToGLM(local);
+	camera->transform.world = ConvertFbxToGLM(world);
+
+
+	FbxVector4 tr = node->EvaluateGlobalTransform().GetT();
+	FbxVector4 pos = world.MultT(geo.MultT(tr));
+	printf("Camera world pos: %.2f %.2f %.2f\n", pos[0], pos[1], pos[2]);
+
+
+
+
+	// Camera Parameters from FBX file are not getting coverted correctly
+	// Issue : Camera is not at the location where it is supposed to be w.r.t Blender
+	// Black screen visible when using default Camera parameters
+	// TODO: Figure out how to correctly interpret camera parameters
+
+	//Temp Fix: Hardcoding Camera Parameters for Bistro_Interior dataset
+	camera->transform.position = glm::vec3(4.0f, 3.0f, -4.0f);
+	camera->transform.rotation = glm::fquat(1.0f, 0.0f, 0.0f, 0.0f);
+	camera->transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	camera->transform.local = glm::translate(glm::mat4(1.0f), camera->transform.position) * glm::mat4_cast(camera->transform.rotation);
+	camera->transform.world = glm::translate(glm::mat4(1.0f), camera->transform.position) * glm::mat4_cast(camera->transform.rotation);
+
+
+	//Camera Parameters
+	double nearPlane = cam->NearPlane.Get();
+	double farPlane = cam->FarPlane.Get();
+	double fovY_deg = cam->FieldOfView.Get();
+	double aspect = (cam->AspectWidth.Get() / cam->AspectHeight.Get());
+
+	glm::mat4 projection = glm::perspective(glm::radians((float)fovY_deg),
+											(float)aspect,
+											(float)nearPlane,
+											(float)farPlane);
+
+	if (cam->ProjectionType.Get() == FbxCamera::ePerspective)
+	{
+		camera->projectionMatrix = projection;
+	}
+	else
+	{
+		camera->projectionMatrix = glm::mat4(1.0f);
+	}
 
 	parent->children.push_back(std::move(camera));
 	return parent->children.back().get();
@@ -343,4 +480,14 @@ FbxVector2 FBXLoader::GetUV(FbxMesh* mesh, int polygonIndex, int vertexIndex, in
 		}
 	}
 	return uvValue;
+}
+
+
+glm::mat4 FBXLoader::ConvertFbxToGLM(FbxAMatrix mat)
+{
+	glm::mat4 r;
+	for (int row = 0; row < 4; row++)
+		for (int col = 0; col < 4; col++)
+			r[col][row] = (float)mat[row][col]; // FBX is row-major
+	return r;
 }

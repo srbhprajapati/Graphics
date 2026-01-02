@@ -22,9 +22,11 @@ public:
 
 private:
 	
+	void AddMaterials(std::vector<MaterialData>& materials);
 	Entity ParseSceneNode(std::unique_ptr<SceneNode>& node, Entity& parent);
 
 	void AddMeshComponent(Entity& node, const MeshNode* sNode);
+	void AddTransformComponent(Entity& node, const SceneNode* sNode);
 	void AddCameraComponent(Entity& node, const CameraNode* sNode);
 	void AddLightComponent(Entity& node, const LightNode* sNode);
 

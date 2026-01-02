@@ -9,7 +9,17 @@ SceneRegistry::SceneRegistry(ResourceManager& manager, SceneData& sData) : resou
 
 void SceneRegistry::Initialize(SceneData& sData)
 {
+	AddMaterials(sData.Materials);
 	ParseSceneNode(sData.rootNode, Entity(entt::null, this));
+}
+
+
+void SceneRegistry::AddMaterials(std::vector<MaterialData>& materials)
+{
+	for (auto& material : materials)
+	{
+		resourceManager.CreateMaterial(material);
+	}
 }
 
 
@@ -33,10 +43,6 @@ void SceneRegistry::DeleteEntity(Entity e)
 Entity SceneRegistry::ParseSceneNode(std::unique_ptr<SceneNode>& node, Entity& parent)
 {
 	Entity nodeEntity = CreateEntity();
-	
-	//Transform Component
-	nodeEntity.AddComponent<TransformComponent>(node->localTransform.matrix);
-	
 	
 	//Relationship Component
 	auto& currNodeRelComp = nodeEntity.AddComponent<RelationshipComponent>();
@@ -73,18 +79,21 @@ Entity SceneRegistry::ParseSceneNode(std::unique_ptr<SceneNode>& node, Entity& p
 	if (auto meshNode = dynamic_cast<const MeshNode*>(node.get()))
 	{
 		AddMeshComponent(nodeEntity, meshNode);
+		AddTransformComponent(nodeEntity, meshNode);
 	}
 
 	//Camera Component
 	if (auto cameraNode = dynamic_cast<const CameraNode*>(node.get()))
 	{
 		AddCameraComponent(nodeEntity, cameraNode);
+		AddTransformComponent(nodeEntity, cameraNode);
 	}
 
 	//Light Component
 	if (auto lightNode = dynamic_cast<const LightNode*>(node.get()))
 	{
 		AddLightComponent(nodeEntity, lightNode);
+		AddTransformComponent(nodeEntity, lightNode);
 	}
 
 	return nodeEntity;
@@ -92,7 +101,7 @@ Entity SceneRegistry::ParseSceneNode(std::unique_ptr<SceneNode>& node, Entity& p
 
 void SceneRegistry::AddMeshComponent(Entity& node, const MeshNode* sNode)
 {
-	MeshHandle mesh = resourceManager.CreateMesh(sNode->vertices, sNode->normals, sNode->uvs, sNode->indices);
+	MeshHandle mesh = resourceManager.CreateMesh(sNode->vertices, sNode->normals, sNode->uvs, sNode->indices, sNode->materialIndex);
 
 	auto& meshComponent = node.AddComponent<MeshComponent>();
 	meshComponent.mesh = mesh;
@@ -102,6 +111,7 @@ void SceneRegistry::AddCameraComponent(Entity& node, const CameraNode* sNode)
 {
 	auto& cameraComponent = node.AddComponent<CameraComponent>();
 	cameraComponent.cameraIndex = sNode->cameraIndex;
+	cameraComponent.projectionMatrix = sNode->projectionMatrix;
 }
 
 void SceneRegistry::AddLightComponent(Entity& node, const LightNode* sNode)
@@ -110,3 +120,14 @@ void SceneRegistry::AddLightComponent(Entity& node, const LightNode* sNode)
 	lightComponent.lightIndex = sNode->lightIndex;
 }
 
+
+void SceneRegistry::AddTransformComponent(Entity& node, const SceneNode* sNode)
+{
+	auto& transformComponent = node.AddComponent<TransformComponent>();
+
+	transformComponent.position = sNode->transform.position;
+	transformComponent.rotation = sNode->transform.rotation;
+	transformComponent.scale = sNode->transform.scale;
+	transformComponent.local = sNode->transform.local;
+	transformComponent.world = sNode->transform.world;
+}

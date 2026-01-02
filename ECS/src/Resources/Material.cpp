@@ -2,6 +2,7 @@
 
 Material::Material(MaterialData& mData)
 {
+	id = mData.ID;
 	ambientColor = mData.AmbientColor;
 	diffuseColor = mData.DiffuseColor;
 	transparentColor = mData.TransparentColor;
@@ -20,6 +21,8 @@ Material::Material(MaterialData& mData)
 	emissiveTexture = std::make_unique<Texture>(mData.EmissiveTexture);
 
 	shader = std::make_unique<PbrShader>();
+
+	InitMaterial();
 }
 
 void Material::InitMaterial()

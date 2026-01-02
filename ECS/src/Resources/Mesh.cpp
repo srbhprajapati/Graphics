@@ -53,3 +53,21 @@ void Mesh::InitMesh()
 
 	glBindVertexArray(0);
 }
+
+
+void Mesh::Render(const glm::mat4& viewProjectionTransform, const glm::mat4& modelTransform)
+{
+	material->GetShader()->Bind();
+	material->GetShader()->SetUniformMat4("model", modelTransform);
+	material->GetShader()->SetUniformMat4("viewProjection", viewProjectionTransform);
+
+	glBindVertexArray(vao);
+	glDrawElements(
+		GL_TRIANGLES,
+		indices.size(),
+		GL_UNSIGNED_INT,
+		nullptr
+	);
+
+	material->GetShader()->UnBind();
+}
