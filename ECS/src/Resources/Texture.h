@@ -17,6 +17,6 @@ private:
 
 	GLuint CreateGLTextureFromDDS(std::string texPath);
 
-	GLuint textureId;
+	GLuint textureId = 0;
 
 };

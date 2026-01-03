@@ -13,10 +13,12 @@ public:
 
 	const Shader* GetShader() const { return shader.get(); }
 
+	void BindTextures() const;
+	void UnbindTextures() const;
+
 private:
 
-	void InitMaterial();
-
+	
 	uint32_t id;
 
 	std::string name;

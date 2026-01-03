@@ -4,6 +4,9 @@
 #include "Systems/RenderSystem.h"
 #include <chrono>
 
+#define WINDOW_WIDTH 1600
+#define WINDOW_HEIGHT 900
+
 using stclock = std::chrono::steady_clock;
 
 Engine::Engine()
@@ -13,7 +16,7 @@ Engine::Engine()
 	SceneData sceneData;
 	FBXLoader::LoadFBXFile(fbxDatasetPath, &sceneData);
 
-	window = std::make_unique<GLFWWindow>(800, 800, "ECS Window");
+	window = std::make_unique<GLFWWindow>(WINDOW_WIDTH, WINDOW_HEIGHT, "ECS Window");
 	resourceManager = std::make_unique<ResourceManager>();
 	scene = std::make_unique<SceneRegistry>(*resourceManager, sceneData);
 	systemManager = std::make_unique<SystemManager>();

@@ -60,6 +60,7 @@ void Mesh::Render(const glm::mat4& viewProjectionTransform, const glm::mat4& mod
 	material->GetShader()->Bind();
 	material->GetShader()->SetUniformMat4("model", modelTransform);
 	material->GetShader()->SetUniformMat4("viewProjection", viewProjectionTransform);
+	material->BindTextures();
 
 	glBindVertexArray(vao);
 	glDrawElements(
@@ -70,4 +71,5 @@ void Mesh::Render(const glm::mat4& viewProjectionTransform, const glm::mat4& mod
 	);
 
 	material->GetShader()->UnBind();
+	material->UnbindTextures();
 }

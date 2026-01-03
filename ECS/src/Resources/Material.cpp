@@ -22,10 +22,10 @@ Material::Material(MaterialData& mData)
 
 	shader = std::make_unique<PbrShader>();
 
-	InitMaterial();
 }
 
-void Material::InitMaterial()
+
+void Material::BindTextures() const
 {
 	shader->SetDiffuseMap(diffuseTexture->GetTextureId());
 	shader->SetSpecularMap(specularTexture->GetTextureId());
@@ -33,7 +33,12 @@ void Material::InitMaterial()
 	shader->SetEmissiveMap(emissiveTexture->GetTextureId());
 }
 
-
-
+void Material::UnbindTextures() const
+{
+	shader->SetDiffuseMap(0);
+	shader->SetSpecularMap(0);
+	shader->SetNormalMap(0);
+	shader->SetEmissiveMap(0);
+}
 
 

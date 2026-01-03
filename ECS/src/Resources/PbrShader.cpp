@@ -113,7 +113,8 @@ vec3 FresnelSchlick(float cosTheta, vec3 F0) {
 // -----------------------------------------------------
 
 void main() {
-    vec3 albedo     = pow(texture(albedoMap, fs_in.texCoord).rgb, vec3(2.2)); // gamma correct
+    //vec3 albedo     = pow(texture(albedoMap, fs_in.texCoord).rgb, vec3(2.2)); // gamma correct
+    vec3 albedo     = texture(albedoMap, fs_in.texCoord).rgb; // gamma correct
     float metallic  = texture(metallicMap, fs_in.texCoord).r;
     float roughness = texture(roughnessMap, fs_in.texCoord).r;
     float ao        = texture(aoMap, fs_in.texCoord).r;
@@ -166,7 +167,7 @@ void main() {
     color = pow(color, vec3(1.0 / 2.2));
 
     //FragColor = vec4(color, 1.0);
-    FragColor = vec4(N, 1.0);
+    FragColor = vec4(albedo, 1.0);
 }
 
 )";
@@ -180,19 +181,26 @@ PbrShader::PbrShader() : Shader(PBRVertexShader, PBRFragmentShader)
 
 void PbrShader::SetDiffuseMap(GLuint texId)
 {
-    this->SetUniformInt("albedoMap", texId);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texId);
+    this->SetUniformInt("albedoMap", 0);
+
 }
 
 
 void PbrShader::SetNormalMap(GLuint texId)
 {
-    this->SetUniformInt("normalMap", texId);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texId);
+    this->SetUniformInt("normalMap", 1);
 }
 
 
 void PbrShader::SetSpecularMap(GLuint texId)
 {
-    this->SetUniformInt("metallicMap", texId);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, texId);
+    this->SetUniformInt("metallicMap", 2);
 }
 
 

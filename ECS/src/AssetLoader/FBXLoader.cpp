@@ -362,6 +362,7 @@ SceneNode* FBXLoader::ParseLight(FbxNode* node, SceneNode* parent)
 
 SceneNode* FBXLoader::ParseCamera(FbxNode* node, SceneNode* parent)
 {
+
 	auto camera = std::make_unique<CameraNode>();
 	camera->nodeType = "Camera";
 
